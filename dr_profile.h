@@ -1,0 +1,13 @@
+#ifndef DR_PROFILE_H
+#define DR_PROFILE_H
+
+#define GOLD_VERSION
+//#define SILVER_VERSION
+
+#define DESKTOP_PLATFORM
+//#define MOBILE_PLATFORM
+//#define SYMBIAN_PLATFORM
+//#define MEEGO_PLATFORM
+//#define ANDROID_PLATFORM
+
+#endif // DR_PROFILE_H
