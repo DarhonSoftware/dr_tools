@@ -10,9 +10,9 @@ CSqlRelationalTableModel::CSqlRelationalTableModel(QObject *pObject) : QSqlRelat
 QVariant	CSqlRelationalTableModel::data (const QModelIndex & Index, int iRole) const
 {
   if (iRole>=Qt::UserRole)
-    return QSqlTableModel::data(index(Index.row(),iRole-Qt::UserRole));
+    return QSqlRelationalTableModel::data(index(Index.row(),iRole-Qt::UserRole));
 
-  return QSqlTableModel::data(Index,iRole);
+  return QSqlRelationalTableModel::data(Index,iRole);
 }
 
 QHash<int, QByteArray> CSqlRelationalTableModel::roleNames() const
