@@ -70,14 +70,31 @@ CCloudStorage::~CCloudStorage()
 
 void CCloudStorage::odAuthorizationRequest()
 {
+  //Create code verifier - 47 bytes
+  m_BACodeVerifier=QByteArray::number(QRandomGenerator::global()->bounded(10000,99999));
+  m_BACodeVerifier.append(QByteArray::number(QRandomGenerator::global()->bounded(10000,99999)));
+  m_BACodeVerifier.append(QByteArray::number(QRandomGenerator::global()->bounded(10000,99999)));
+  m_BACodeVerifier.append(QByteArray::number(QRandomGenerator::global()->bounded(10000,99999)));
+  m_BACodeVerifier.append(QByteArray::number(QRandomGenerator::global()->bounded(10000,99999)));
+  m_BACodeVerifier.append(QByteArray::number(QRandomGenerator::global()->bounded(10000,99999)));
+  m_BACodeVerifier.append(QByteArray::number(QRandomGenerator::global()->bounded(10000,99999)));
+  m_BACodeVerifier=m_BACodeVerifier.toBase64(QByteArray::Base64UrlEncoding);
+  m_BACodeVerifier.truncate(m_BACodeVerifier.length()-1);
+
+  //Create code challenge - 43 bytes
+  QByteArray BACodeChallenge=QCryptographicHash::hash(m_BACodeVerifier,QCryptographicHash::Sha256).toBase64(QByteArray::Base64UrlEncoding);
+  BACodeChallenge.truncate(BACodeChallenge.length()-1);
+
   //Open browser to request user approval and code
-  if (!QDesktopServices::openUrl(QUrl(QString("https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?"\
+  if (!QDesktopServices::openUrl(QUrl(QString("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?"\
                                               "client_id=%1&"\
                                               "response_type=code&"\
                                               "redirect_uri=%2&"\
                                               "scope=files.readwrite offline_access&"\
-                                              "response_mode=query").
-                                 arg(m_pairOdCredentials.first,m_sOdRedirectURI))))
+                                              "response_mode=query&"\
+                                              "code_challenge=%3&"\
+                                              "code_challenge_method=S256").
+                                 arg(m_pairOdCredentials.first,m_sOdRedirectURI,BACodeChallenge))))
     emit accessError("OneDrive",tr("There was a problem opening the browser.\nEnsure there is a default browser in your system."));
 }
 
@@ -87,7 +104,7 @@ void CCloudStorage::odRefreshToken(const QString &sAuthorizationCode)
   if (running()) return;
 
   //Validate parameter and global methods
-  if (sAuthorizationCode.isEmpty()) return;
+  if (sAuthorizationCode.isEmpty() || m_BACodeVerifier.isEmpty()) return;
 
   //Set state
   m_iAction=ActionOdRefreshToken;
@@ -97,11 +114,12 @@ void CCloudStorage::odRefreshToken(const QString &sAuthorizationCode)
                     "grant_type=authorization_code&"\
                     "scope=files.readwrite offline_access&"\
                     "code=%2&"\
-                    "redirect_uri=%3").
-            arg(m_pairOdCredentials.first,sAuthorizationCode,m_sOdRedirectURI);
+                    "redirect_uri=%3&"\
+                    "code_verifier=%4").
+            arg(m_pairOdCredentials.first,sAuthorizationCode,m_sOdRedirectURI,m_BACodeVerifier);
 
   QNetworkRequest Request;
-  Request.setUrl(QUrl("https://login.microsoftonline.com/consumers/oauth2/v2.0/token"));
+  Request.setUrl(QUrl("https://login.microsoftonline.com/common/oauth2/v2.0/token"));
   Request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
   Request.setHeader(QNetworkRequest::ContentLengthHeader,s.toUtf8().size());
 
@@ -130,12 +148,11 @@ void CCloudStorage::odCallAPI(bool bUpload, const QString& sLocal, const QString
   QString s=QString("client_id=%1&"\
                     "grant_type=refresh_token&"\
                     "scope=files.readwrite offline_access&"\
-                    "refresh_token=%2&"\
-                    "redirect_uri=%3").
-            arg(m_pairOdCredentials.first,m_sOdRefreshToken,m_sOdRedirectURI);
+                    "refresh_token=%2").
+            arg(m_pairOdCredentials.first,m_sOdRefreshToken);
 
   QNetworkRequest Request;
-  Request.setUrl(QUrl("https://login.microsoftonline.com/consumers/oauth2/v2.0/token"));
+  Request.setUrl(QUrl("https://login.microsoftonline.com/common/oauth2/v2.0/token"));
   Request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
   Request.setHeader(QNetworkRequest::ContentLengthHeader,s.toUtf8().size());
 
