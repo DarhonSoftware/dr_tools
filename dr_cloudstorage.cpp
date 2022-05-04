@@ -94,7 +94,7 @@ void CCloudStorage::odAuthorizationRequest()
                                               "response_mode=query&"\
                                               "code_challenge=%3&"\
                                               "code_challenge_method=S256").
-                                 arg(m_pairOdCredentials.first,m_sOdRedirectURI,BACodeChallenge))))
+                                      arg(m_pairOdCredentials.first,m_sOdRedirectURI,BACodeChallenge))))
     emit accessError("OneDrive",tr("There was a problem opening the browser.\nEnsure there is a default browser in your system."));
 }
 
@@ -124,8 +124,8 @@ void CCloudStorage::odRefreshToken(const QString &sAuthorizationCode)
   Request.setHeader(QNetworkRequest::ContentLengthHeader,s.toUtf8().size());
 
   //Send request
-  m_Manager.post(Request,s.toUtf8());
   setRunning(true);
+  m_Manager.post(Request,s.toUtf8());
 }
 
 void CCloudStorage::odCallAPI(bool bUpload, const QString& sLocal, const QString& sRemote)
@@ -157,10 +157,8 @@ void CCloudStorage::odCallAPI(bool bUpload, const QString& sLocal, const QString
   Request.setHeader(QNetworkRequest::ContentLengthHeader,s.toUtf8().size());
 
   //Send request
-  m_Manager.post(Request,s.toUtf8());
   setRunning(true);
-
-  return;
+  m_Manager.post(Request,s.toUtf8());
 }
 
 void CCloudStorage::odDeleteAccessToken()
@@ -194,8 +192,8 @@ bool CCloudStorage::odUpload()
   Request.setRawHeader(QString("Authorization").toUtf8(),QString("Bearer %1").arg(m_sOdAccessToken).toUtf8());
 
   //Send request
+  setRunning(true);
   m_Manager.put(Request,m_BABuffer);
-
   return true;
 }
 
@@ -210,8 +208,8 @@ bool CCloudStorage::odDownloadLink()
   Request.setRawHeader(QString("Authorization").toUtf8(),QString("Bearer %1").arg(m_sOdAccessToken).toUtf8());
 
   //Send request
+  setRunning(true);
   m_Manager.get(Request);
-
   return true;
 }
 
@@ -232,8 +230,8 @@ bool CCloudStorage::odDownloadContent(const QString &sDownloadUrl)
   Request.setUrl(QUrl(sDownloadUrl));
 
   //Send request
+  setRunning(true);
   m_Manager.get(Request);
-
   return true;
 }
 
@@ -261,7 +259,7 @@ void CCloudStorage::dbAuthorizationRequest()
                                               "scope=files.content.read files.content.write&"\
                                               "code_challenge=%2&"\
                                               "code_challenge_method=S256").
-                                 arg(m_pairDbCredentials.first,BACodeChallenge))))
+                                      arg(m_pairDbCredentials.first,BACodeChallenge))))
     emit accessError("Dropbox",tr("There was a problem opening the browser.\nEnsure there is a default browser in your system."));
 }
 
@@ -289,8 +287,8 @@ void CCloudStorage::dbAccessToken(const QString &sAuthorizationCode)
   Request.setHeader(QNetworkRequest::ContentLengthHeader,s.toUtf8().size());
 
   //Send request
-  m_Manager.post(Request,s.toUtf8());
   setRunning(true);
+  m_Manager.post(Request,s.toUtf8());
 }
 
 void CCloudStorage::dbDeleteAccessToken()
@@ -332,8 +330,8 @@ void CCloudStorage::dbUpload(const QString &sLocal, const QString &sRemote)
   Request.setHeader(QNetworkRequest::ContentTypeHeader,"application/octet-stream");
 
   //Send request
-  m_Manager.post(Request,m_BABuffer);
   setRunning(true);
+  m_Manager.post(Request,m_BABuffer);
 }
 
 void CCloudStorage::dbDownload(const QString &sRemote, const QString &sLocal)
@@ -364,8 +362,8 @@ void CCloudStorage::dbDownload(const QString &sRemote, const QString &sLocal)
   Request.setRawHeader(QString("Dropbox-API-Arg").toUtf8(),QString("{ \"path\": \"%1\" }").arg(sRemote).toUtf8());
 
   //Send request
-  m_Manager.get(Request);
   setRunning(true);
+  m_Manager.get(Request);
 }
 
 void CCloudStorage::gdAuthorizationRequest()
@@ -423,8 +421,8 @@ void CCloudStorage::gdRefreshToken(const QString &sAuthorizationCode)
   Request.setHeader(QNetworkRequest::ContentLengthHeader,s.toUtf8().size());
 
   //Send request
-  m_Manager.post(Request,s.toUtf8());
   setRunning(true);
+  m_Manager.post(Request,s.toUtf8());
 }
 
 void CCloudStorage::gdCallAPI(bool bUpload, const QString& sLocal, const QString& sRemote)
@@ -456,10 +454,8 @@ void CCloudStorage::gdCallAPI(bool bUpload, const QString& sLocal, const QString
   Request.setHeader(QNetworkRequest::ContentLengthHeader,s.toUtf8().size());
 
   //Send request
-  m_Manager.post(Request,s.toUtf8());
   setRunning(true);
-
-  return;
+  m_Manager.post(Request,s.toUtf8());
 }
 
 void CCloudStorage::gdDeleteAccessToken()
@@ -501,6 +497,7 @@ bool CCloudStorage::gdUpload()
   Request.setRawHeader(QString("Authorization").toUtf8(),QString("Bearer %1").arg(m_sGdAccessToken).toUtf8());
 
   //Send request
+  setRunning(true);
   m_Manager.post(Request,m_BABuffer);
   return true;
 }
@@ -530,8 +527,8 @@ bool CCloudStorage::gdDownload()
   Request.setRawHeader(QString("Authorization").toUtf8(),QString("Bearer %1").arg(m_sGdAccessToken).toUtf8());
 
   //Send request
+  setRunning(true);
   m_Manager.get(Request);
-
   return true;
 }
 
@@ -548,6 +545,7 @@ bool CCloudStorage::gdDelete(const QString &sId)
   Request.setRawHeader(QString("Authorization").toUtf8(),QString("Bearer %1").arg(m_sGdAccessToken).toUtf8());
 
   //Send request
+  setRunning(true);
   m_Manager.deleteResource(Request);
   return true;
 }
@@ -555,259 +553,258 @@ bool CCloudStorage::gdDelete(const QString &sId)
 void CCloudStorage::replyFinished(QNetworkReply* pReply)
 {
   QByteArray BABody=pReply->readAll();
-
-  //** ONEDRIVE - Refresh token
-  if (m_iAction==ActionOdRefreshToken)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if (JsonObject.contains("refresh_token"))
-    {
-      m_sOdRefreshToken=JsonObject.value("refresh_token").toString();
-      setOdauth(true);
-    }
-    else
-    {
-      m_sOdRefreshToken.clear();
-      setOdauth(false);
-      emit accessError("OneDrive",JsonObject.value("error_description").toString());
-    }
-  }
-
-  //** ONEDRIVE - Access token
-  if (m_iAction==ActionOdAccessToken)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if (JsonObject.contains("access_token"))
-    {
-      m_sOdAccessToken=JsonObject.value("access_token").toString();
-      bool bKeepRunning;
-      if (m_bUpload)
-        bKeepRunning=odUpload();
-      else
-        bKeepRunning=odDownloadLink();
-
-      if (!bKeepRunning) setRunning(false);
-      pReply->deleteLater();
-      return;
-    }
-    else
-    {
-      emit accessError("OneDrive",JsonObject.value("error_description").toString());
-    }
-  }
-
-  //** ONEDRIVE - Upload
-  if (m_iAction==ActionOdUpload)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if ((JsonObject.isEmpty()) || (JsonObject.contains("error")))
-    {
-      emit uploadResult(false,"OneDrive",JsonObject.value("error").toObject().value("message").toString());
-    }
-    else
-    {
-      emit uploadResult(true,"OneDrive");
-    }
-  }
-
-  //** ONEDRIVE - DownloadLink
-  if (m_iAction==ActionOdDownloadLink)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    QString sDownloadUrl=pReply->header(QNetworkRequest::LocationHeader).toString();
-    if (JsonObject.contains("error"))
-    {
-      emit downloadResult(false,"OneDrive",JsonObject.value("error").toObject().value("message").toString());
-    }
-    else
-    {
-      bool bKeepRunning=odDownloadContent(sDownloadUrl);
-      if (!bKeepRunning) setRunning(false);
-      pReply->deleteLater();
-      return;
-    }
-  }
-
-  //** ONEDRIVE - DownloadContent
-  if (m_iAction==ActionOdDownloadContent)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if ((BABody.isEmpty()) || (JsonObject.contains("error")))
-    {
-      emit downloadResult(false,"OneDrive",JsonObject.value("error").toObject().value("message").toString());
-    }
-    else
-    {
-      QFile File(m_sLocal);
-      File.open(QIODevice::WriteOnly);
-      File.write(BABody);
-      File.close();
-      emit downloadResult(true,"OneDrive");
-    }
-  }
-
-  //** DROPBOX - Access token
-  if (m_iAction==ActionDbAccessToken)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if (JsonObject.contains("access_token"))
-    {
-      m_sDbAccessToken=JsonObject.value("access_token").toString();
-      setDbauth(true);
-      m_BACodeVerifier.clear();
-    }
-    else
-    {
-      m_sDbAccessToken.clear();
-      setDbauth(false);
-      emit accessError("Dropbox",JsonObject.value("error_description").toString());
-    }
-  }
-
-  //** DROPBOX - Upload
-  if (m_iAction==ActionDbUpload)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if ((JsonObject.isEmpty()) || (JsonObject.contains("error")))
-    {
-      emit uploadResult(false,"Dropbox",JsonObject.value("error_summary").toString());
-    }
-    else
-    {
-      emit uploadResult(true,"Dropbox");
-    }
-  }
-
-  //** DROPBOX - Download
-  if (m_iAction==ActionDbDownload)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if ((BABody.isEmpty()) || (JsonObject.contains("error")))
-    {
-      emit downloadResult(false,"Dropbox",JsonObject.value("error_summary").toString());
-    }
-    else
-    {
-      QFile File(m_sLocal);
-      File.open(QIODevice::WriteOnly);
-      File.write(BABody);
-      File.close();
-      emit downloadResult(true,"Dropbox");
-    }
-  }
-
-  //** GOOGLE DRIVE - Refresh token
-  if (m_iAction==ActionGdRefreshToken)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if (JsonObject.contains("refresh_token"))
-    {
-      m_sGdRefreshToken=JsonObject.value("refresh_token").toString();
-      setGdauth(true);
-    }
-    else
-    {
-      m_sGdRefreshToken.clear();
-      setGdauth(false);
-      emit accessError("Google Drive",JsonObject.value("error_description").toString());
-    }
-  }
-
-  //** GOOGLE DRIVE - Access token
-  if (m_iAction==ActionGdAccessToken)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if (JsonObject.contains("access_token"))
-    {
-      m_sGdAccessToken=JsonObject.value("access_token").toString();
-      bool bKeepRunning;
-      if (m_bUpload)
-        bKeepRunning=gdUpload();
-      else
-        bKeepRunning=gdDownload();
-
-      if (!bKeepRunning) setRunning(false);
-      pReply->deleteLater();
-      return;
-    }
-    else
-    {
-      emit accessError("Google Drive",JsonObject.value("error_description").toString());
-    }
-  }
-
-  //** GOOGLE DRIVE - Upload
-  if (m_iAction==ActionGdUpload)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if ((JsonObject.isEmpty()) || (JsonObject.contains("error")))
-    {
-      emit uploadResult(false,"Google Drive",JsonObject.value("error").toObject().value("message").toString());
-    }
-    else
-    {
-      //Delete previous file
-      bool bKeepRunning;
-      bKeepRunning=gdDelete(m_sGdFileId);
-
-      //Update parameters for new file
-      m_sGdFileId=JsonObject.value("id").toString();
-      emit uploadResult(true,"Google Drive");
-
-      if (!bKeepRunning) setRunning(false);
-      pReply->deleteLater();
-      return;
-    }
-  }
-
-  //** GOOGLE DRIVE - Download
-  if (m_iAction==ActionGdDownload)
-  {
-    //Validate operation
-    QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
-    QJsonObject JsonObject=JsonDocument.object();
-    if ((BABody.isEmpty()) || (JsonObject.contains("error")))
-    {
-      emit downloadResult(false,"Google Drive",JsonObject.value("error").toObject().value("message").toString());
-    }
-    else
-    {
-      QFile File(m_sLocal);
-      File.open(QIODevice::WriteOnly);
-      File.write(BABody);
-      File.close();
-      emit downloadResult(true,"Google Drive");
-    }
-  }
-
-  //** GOOGLE DRIVE - Delete
-  if (m_iAction==ActionGdDelete)
-  {
-    //No action required
-  }
-
   setRunning(false);
+
+  switch (m_iAction)
+  {
+    //** ONEDRIVE - Refresh token
+    case ActionOdRefreshToken:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if (JsonObject.contains("refresh_token"))
+      {
+        m_sOdRefreshToken=JsonObject.value("refresh_token").toString();
+        m_BACodeVerifier.clear();
+        setOdauth(true);
+      }
+      else
+      {
+        m_sOdRefreshToken.clear();
+        setOdauth(false);
+        emit accessError("OneDrive",JsonObject.value("error_description").toString());
+      }
+      break;
+    }
+
+      //** ONEDRIVE - Access token
+    case ActionOdAccessToken:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if (JsonObject.contains("access_token"))
+      {
+        m_sOdAccessToken=JsonObject.value("access_token").toString();
+        if (m_bUpload)
+          odUpload();
+        else
+          odDownloadLink();
+      }
+      else
+      {
+        emit accessError("OneDrive",JsonObject.value("error_description").toString());
+      }
+      break;
+    }
+
+      //** ONEDRIVE - Upload
+    case ActionOdUpload:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if ((JsonObject.isEmpty()) || (JsonObject.contains("error")))
+      {
+        emit uploadResult(false,"OneDrive",JsonObject.value("error").toObject().value("message").toString());
+      }
+      else
+      {
+        emit uploadResult(true,"OneDrive");
+      }
+      break;
+    }
+
+      //** ONEDRIVE - DownloadLink
+    case ActionOdDownloadLink:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      QString sDownloadUrl=pReply->header(QNetworkRequest::LocationHeader).toString();
+      if (JsonObject.contains("error"))
+      {
+        emit downloadResult(false,"OneDrive",JsonObject.value("error").toObject().value("message").toString());
+      }
+      else
+      {
+        odDownloadContent(sDownloadUrl);
+      }
+      break;
+    }
+
+      //** ONEDRIVE - DownloadContent
+    case ActionOdDownloadContent:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if ((BABody.isEmpty()) || (JsonObject.contains("error")))
+      {
+        emit downloadResult(false,"OneDrive",JsonObject.value("error").toObject().value("message").toString());
+      }
+      else
+      {
+        QFile File(m_sLocal);
+        File.open(QIODevice::WriteOnly);
+        File.write(BABody);
+        File.close();
+        emit downloadResult(true,"OneDrive");
+      }
+      break;
+    }
+
+      //** DROPBOX - Access token
+    case ActionDbAccessToken:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if (JsonObject.contains("access_token"))
+      {
+        m_sDbAccessToken=JsonObject.value("access_token").toString();
+        setDbauth(true);
+        m_BACodeVerifier.clear();
+      }
+      else
+      {
+        m_sDbAccessToken.clear();
+        setDbauth(false);
+        emit accessError("Dropbox",JsonObject.value("error_description").toString());
+      }
+      break;
+    }
+
+      //** DROPBOX - Upload
+    case ActionDbUpload:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if ((JsonObject.isEmpty()) || (JsonObject.contains("error")))
+      {
+        emit uploadResult(false,"Dropbox",JsonObject.value("error_summary").toString());
+      }
+      else
+      {
+        emit uploadResult(true,"Dropbox");
+      }
+      break;
+    }
+
+      //** DROPBOX - Download
+    case ActionDbDownload:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if ((BABody.isEmpty()) || (JsonObject.contains("error")))
+      {
+        emit downloadResult(false,"Dropbox",JsonObject.value("error_summary").toString());
+      }
+      else
+      {
+        QFile File(m_sLocal);
+        File.open(QIODevice::WriteOnly);
+        File.write(BABody);
+        File.close();
+        emit downloadResult(true,"Dropbox");
+      }
+      break;
+    }
+
+      //** GOOGLE DRIVE - Refresh token
+    case ActionGdRefreshToken:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if (JsonObject.contains("refresh_token"))
+      {
+        m_sGdRefreshToken=JsonObject.value("refresh_token").toString();
+        m_BACodeVerifier.clear();
+        setGdauth(true);
+      }
+      else
+      {
+        m_sGdRefreshToken.clear();
+        setGdauth(false);
+        emit accessError("Google Drive",JsonObject.value("error_description").toString());
+      }
+      break;
+    }
+
+      //** GOOGLE DRIVE - Access token
+    case ActionGdAccessToken:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if (JsonObject.contains("access_token"))
+      {
+        m_sGdAccessToken=JsonObject.value("access_token").toString();
+        if (m_bUpload)
+          gdUpload();
+        else
+          gdDownload();
+      }
+      else
+      {
+        emit accessError("Google Drive",JsonObject.value("error_description").toString());
+      }
+      break;
+    }
+
+      //** GOOGLE DRIVE - Upload
+    case ActionGdUpload:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if ((JsonObject.isEmpty()) || (JsonObject.contains("error")))
+      {
+        emit uploadResult(false,"Google Drive",JsonObject.value("error").toObject().value("message").toString());
+      }
+      else
+      {
+        //Delete previous file
+        gdDelete(m_sGdFileId);
+
+        //Update parameters for new file
+        m_sGdFileId=JsonObject.value("id").toString();
+        emit uploadResult(true,"Google Drive");
+      }
+      break;
+    }
+
+      //** GOOGLE DRIVE - Download
+    case ActionGdDownload:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if ((BABody.isEmpty()) || (JsonObject.contains("error")))
+      {
+        emit downloadResult(false,"Google Drive",JsonObject.value("error").toObject().value("message").toString());
+      }
+      else
+      {
+        QFile File(m_sLocal);
+        File.open(QIODevice::WriteOnly);
+        File.write(BABody);
+        File.close();
+        emit downloadResult(true,"Google Drive");
+      }
+      break;
+    }
+
+      //** GOOGLE DRIVE - Delete
+    case ActionGdDelete:
+    {
+      //No action required
+    }
+  }
+
   pReply->deleteLater();
 }
