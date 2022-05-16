@@ -11,7 +11,7 @@ class CCloudStorage : public QObject
   Q_OBJECT
 
   enum Action {ActionOdRefreshToken,ActionOdAccessToken,ActionOdUpload,ActionOdDownloadLink,ActionOdDownloadContent,
-               ActionDbAccessToken,ActionDbUpload,ActionDbDownload,
+               ActionDbRefreshToken,ActionDbAccessToken,ActionDbUpload,ActionDbDownload,
                ActionGdRefreshToken,ActionGdAccessToken,ActionGdUpload,ActionGdDownload,ActionGdDelete};
 
   Q_PROPERTY(bool running READ running WRITE setRunning NOTIFY runningChanged)
@@ -26,7 +26,7 @@ class CCloudStorage : public QObject
 
   //Stored tokens
   QString m_sOdRefreshToken;
-  QString m_sDbAccessToken;
+  QString m_sDbRefreshToken;
   QString m_sGdRefreshToken;
 
   //Stored info
@@ -45,6 +45,7 @@ class CCloudStorage : public QObject
   QString m_sLocal;
   QString m_sRemote;
   QString m_sOdAccessToken;
+  QString m_sDbAccessToken;
   QString m_sGdAccessToken;
   bool m_bUpload;
   QByteArray m_BACodeVerifier;
@@ -91,24 +92,25 @@ private:
   bool odUpload();
   bool odDownloadLink();
   bool odDownloadContent(const QString& sDownloadUrl);
+  bool dbUpload();
+  bool dbDownload();
   bool gdUpload();
   bool gdDownload();
   bool gdDelete(const QString &sId);
 
 public slots:
-  void odAuthorizationRequest();
-  void odRefreshToken(const QString& sAuthorizationCode);
+  QUrl odAuthorizationRequest();
+  bool odRefreshToken(const QString& sUrl);
   void odCallAPI(bool bUpload, const QString &sLocal, const QString &sRemote);
   void odDeleteAccessToken();
 
-  void dbAuthorizationRequest();
-  void dbAccessToken(const QString &sAuthorizationCode);
+  QUrl dbAuthorizationRequest();
+  bool dbRefreshToken(const QString& sUrl);
+  void dbCallAPI(bool bUpload, const QString &sLocal, const QString &sRemote);
   void dbDeleteAccessToken();
-  void dbUpload(const QString &sLocal, const QString &sRemote);
-  void dbDownload(const QString &sRemote, const QString &sLocal);
 
-  void gdAuthorizationRequest();
-  void gdRefreshToken(const QString &sAuthorizationCode);
+  QUrl gdAuthorizationRequest();
+  bool gdRefreshToken(const QString& sUrl);
   void gdCallAPI(bool bUpload, const QString &sLocal, const QString &sRemote);
   void gdDeleteAccessToken();
 };

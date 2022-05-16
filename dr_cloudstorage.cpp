@@ -22,7 +22,7 @@ CCloudStorage::CCloudStorage(QObject *pObject) :  QObject(pObject)
 
   //Load access tokens from file
   m_sOdRefreshToken=m_Crypt.decryptArray(QByteArray::fromBase64(Settings.value("od_token").toByteArray()));
-  m_sDbAccessToken=m_Crypt.decryptArray(QByteArray::fromBase64(Settings.value("db_token").toByteArray()));
+  m_sDbRefreshToken=m_Crypt.decryptArray(QByteArray::fromBase64(Settings.value("db_token").toByteArray()));
   m_sGdRefreshToken=m_Crypt.decryptArray(QByteArray::fromBase64(Settings.value("gd_token").toByteArray()));
 
   //Load Google Drive parameters from file
@@ -34,7 +34,7 @@ CCloudStorage::CCloudStorage(QObject *pObject) :  QObject(pObject)
   //Initialize members
   setRunning(false);
   setOdauth(!m_sOdRefreshToken.isEmpty());
-  setDbauth(!m_sDbAccessToken.isEmpty());
+  setDbauth(!m_sDbRefreshToken.isEmpty());
   setGdauth(!m_sGdRefreshToken.isEmpty());
   m_BACodeVerifier.clear();
 
@@ -45,6 +45,11 @@ CCloudStorage::CCloudStorage(QObject *pObject) :  QObject(pObject)
   m_pairDbCredentials.second=QString();
   m_pairGdCredentials.first=QString();
   m_pairGdCredentials.second=QString();
+
+  //Initialise RedirectURI
+  m_sOdRedirectURI.clear();
+  m_sDbRedirectURI.clear();
+  m_sGdRedirectURI.clear();
 
   //Connect Network Manager
   connect(&m_Manager, &QNetworkAccessManager::finished,this, &CCloudStorage::replyFinished);
@@ -58,7 +63,7 @@ CCloudStorage::~CCloudStorage()
 
   //Save access tokens to file
   Settings.setValue("od_token", m_Crypt.encryptArray(m_sOdRefreshToken.toUtf8()).toBase64());
-  Settings.setValue("db_token", m_Crypt.encryptArray(m_sDbAccessToken.toUtf8()).toBase64());
+  Settings.setValue("db_token", m_Crypt.encryptArray(m_sDbRefreshToken.toUtf8()).toBase64());
   Settings.setValue("gd_token", m_Crypt.encryptArray(m_sGdRefreshToken.toUtf8()).toBase64());
 
   //Save Google Drive parameters to file
@@ -68,7 +73,7 @@ CCloudStorage::~CCloudStorage()
   Settings.endGroup();
 }
 
-void CCloudStorage::odAuthorizationRequest()
+QUrl CCloudStorage::odAuthorizationRequest()
 {
   //Create code verifier - 47 bytes
   m_BACodeVerifier=QByteArray::number(QRandomGenerator::global()->bounded(10000,99999));
@@ -85,26 +90,28 @@ void CCloudStorage::odAuthorizationRequest()
   QByteArray BACodeChallenge=QCryptographicHash::hash(m_BACodeVerifier,QCryptographicHash::Sha256).toBase64(QByteArray::Base64UrlEncoding);
   BACodeChallenge.truncate(BACodeChallenge.length()-1);
 
-  //Open browser to request user approval and code
-  if (!QDesktopServices::openUrl(QUrl(QString("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?"\
-                                              "client_id=%1&"\
-                                              "response_type=code&"\
-                                              "redirect_uri=%2&"\
-                                              "scope=files.readwrite offline_access&"\
-                                              "response_mode=query&"\
-                                              "code_challenge=%3&"\
-                                              "code_challenge_method=S256").
-                                      arg(m_pairOdCredentials.first,m_sOdRedirectURI,BACodeChallenge))))
-    emit accessError("OneDrive",tr("There was a problem opening the browser.\nEnsure there is a default browser in your system."));
+  return QUrl(QString("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?"\
+                      "client_id=%1&"\
+                      "response_type=code&"\
+                      "redirect_uri=%2&"\
+                      "scope=files.readwrite offline_access&"\
+                      "response_mode=query&"\
+                      "code_challenge=%3&"\
+                      "code_challenge_method=S256").
+              arg(m_pairOdCredentials.first,m_sOdRedirectURI,BACodeChallenge));
 }
 
-void CCloudStorage::odRefreshToken(const QString &sAuthorizationCode)
+bool CCloudStorage::odRefreshToken(const QString &sUrl)
 {
-  //Validate if another network request is already in progress
-  if (running()) return;
+  //Read the Url and identify if final authorisation is provided
+  QString sAuthorizationCode;
+  QUrl Url;
+  Url.setUrl(sUrl);
 
-  //Validate parameter and global methods
-  if (sAuthorizationCode.isEmpty() || m_BACodeVerifier.isEmpty()) return;
+  if ((Url.hasQuery()) && (Url.query().startsWith("code=")))
+    sAuthorizationCode=Url.query().remove("code=");
+  else
+    return false;
 
   //Set state
   m_iAction=ActionOdRefreshToken;
@@ -126,6 +133,8 @@ void CCloudStorage::odRefreshToken(const QString &sAuthorizationCode)
   //Send request
   setRunning(true);
   m_Manager.post(Request,s.toUtf8());
+
+  return true;
 }
 
 void CCloudStorage::odCallAPI(bool bUpload, const QString& sLocal, const QString& sRemote)
@@ -235,7 +244,7 @@ bool CCloudStorage::odDownloadContent(const QString &sDownloadUrl)
   return true;
 }
 
-void CCloudStorage::dbAuthorizationRequest()
+QUrl CCloudStorage::dbAuthorizationRequest()
 {
   //Create code verifier - 47 bytes
   m_BACodeVerifier=QByteArray::number(QRandomGenerator::global()->bounded(10000,99999));
@@ -253,33 +262,73 @@ void CCloudStorage::dbAuthorizationRequest()
   BACodeChallenge.truncate(BACodeChallenge.length()-1);
 
   //Open browser to request user approval and code
-  if (!QDesktopServices::openUrl(QUrl(QString("https://www.dropbox.com/oauth2/authorize?"\
-                                              "client_id=%1&"\
-                                              "response_type=code&"\
-                                              "scope=files.content.read files.content.write&"\
-                                              "code_challenge=%2&"\
-                                              "code_challenge_method=S256").
-                                      arg(m_pairDbCredentials.first,BACodeChallenge))))
-    emit accessError("Dropbox",tr("There was a problem opening the browser.\nEnsure there is a default browser in your system."));
+  return QUrl(QString("https://www.dropbox.com/oauth2/authorize?"\
+                      "response_type=code&"\
+                      "client_id=%1&"\
+                      "redirect_uri=%2&"\
+                      "scope=files.content.read files.content.write&"\
+                      "token_access_type=offline&"\
+                      "code_challenge=%3&"\
+                      "code_challenge_method=S256").
+              arg(m_pairDbCredentials.first,m_sDbRedirectURI,BACodeChallenge));
 }
 
-void CCloudStorage::dbAccessToken(const QString &sAuthorizationCode)
+bool CCloudStorage::dbRefreshToken(const QString& sUrl)
 {
-  //Validate if another network request is already in progress
-  if (running()) return;
+  //Read the Url and identify if final authorisation is provided
+  QString sAuthorizationCode;
+  QUrl Url;
+  Url.setUrl(sUrl);
 
-  //Validate parameter and global methods
-  if (sAuthorizationCode.isEmpty() || m_BACodeVerifier.isEmpty()) return;
+  if ((Url.hasQuery()) && (Url.query().startsWith("code=")))
+    sAuthorizationCode=Url.query().remove("code=");
+  else
+    return false;
 
   //Set state
-  m_iAction=ActionDbAccessToken;
+  m_iAction=ActionDbRefreshToken;
 
   //Extract code & create query
   QString s=QString("code=%1&"\
                     "grant_type=authorization_code&"\
-                    "code_verifier=%2&"\
-                    "client_id=%3").
-            arg(sAuthorizationCode,m_BACodeVerifier,m_pairDbCredentials.first);
+                    "redirect_uri=%2&"\
+                    "code_verifier=%3&"\
+                    "client_id=%4").
+            arg(sAuthorizationCode,m_sDbRedirectURI,m_BACodeVerifier,m_pairDbCredentials.first);
+
+  QNetworkRequest Request;
+  Request.setUrl(QUrl("https://api.dropboxapi.com/oauth2/token"));
+  Request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
+  Request.setHeader(QNetworkRequest::ContentLengthHeader,s.toUtf8().size());
+
+  //Send request
+  setRunning(true);
+  m_Manager.post(Request,s.toUtf8());
+
+  return true;
+}
+
+void CCloudStorage::dbCallAPI(bool bUpload, const QString& sLocal, const QString& sRemote)
+{
+  //Validate if another network request is already in progress
+  if (running()) return;
+
+  //Validate if refresh token is valid
+  if (!dbauth()) return;
+
+  //Set state
+  m_iAction=ActionDbAccessToken;
+
+  //Set parameters for Upload/Download routines
+  m_sLocal=sLocal;
+  m_sRemote=sRemote;
+  m_bUpload=bUpload;
+
+  //Extract code & create query
+  QString s=QString("grant_type=refresh_token&"\
+                    "refresh_token=%1&"\
+                    "client_id=%2").
+            arg(m_sDbRefreshToken,m_pairDbCredentials.first);
 
   QNetworkRequest Request;
   Request.setUrl(QUrl("https://api.dropboxapi.com/oauth2/token"));
@@ -293,30 +342,24 @@ void CCloudStorage::dbAccessToken(const QString &sAuthorizationCode)
 
 void CCloudStorage::dbDeleteAccessToken()
 {
-  m_sDbAccessToken.clear();
+  m_sDbRefreshToken.clear();
   setDbauth(false);
 }
 
-void CCloudStorage::dbUpload(const QString &sLocal, const QString &sRemote)
+bool CCloudStorage::dbUpload()
 {
-  //Validate if another network request is already in progress
-  if (running()) return;
-
-  //Validate if access token is valid
-  if (!dbauth()) return;
-
   //Validate if file exists
-  if (!QFile(sLocal).exists())
+  if (!QFile(m_sLocal).exists())
   {
     emit uploadResult(false,"Dropbox",tr("Your database has not been created as yet"));
-    return;
+    return false;
   }
 
   //Set state
   m_iAction=ActionDbUpload;
 
   //Open file and read all content locally
-  QFile File(sLocal);
+  QFile File(m_sLocal);
   File.open(QIODevice::ReadOnly);
   m_BABuffer=File.readAll();
   File.close();
@@ -326,27 +369,19 @@ void CCloudStorage::dbUpload(const QString &sLocal, const QString &sRemote)
   Request.setUrl(QUrl("https://content.dropboxapi.com/2/files/upload"));
   Request.setHeader(QNetworkRequest::ContentLengthHeader,m_BABuffer.size());
   Request.setRawHeader(QString("Authorization").toUtf8(),QString("Bearer %1").arg(m_sDbAccessToken).toUtf8());
-  Request.setRawHeader(QString("Dropbox-API-Arg").toUtf8(),QString("{ \"path\": \"%1\",\"mode\":\"overwrite\" }").arg(sRemote).toUtf8());
+  Request.setRawHeader(QString("Dropbox-API-Arg").toUtf8(),QString("{ \"path\": \"%1\",\"mode\":\"overwrite\" }").arg(m_sRemote).toUtf8());
   Request.setHeader(QNetworkRequest::ContentTypeHeader,"application/octet-stream");
 
   //Send request
   setRunning(true);
   m_Manager.post(Request,m_BABuffer);
+  return true;
 }
 
-void CCloudStorage::dbDownload(const QString &sRemote, const QString &sLocal)
+bool CCloudStorage::dbDownload()
 {
-  //Validate if another network request is already in progress
-  if (running()) return;
-
-  //Validate if access token is valid
-  if (!dbauth()) return;
-
   //Set state
   m_iAction=ActionDbDownload;
-
-  //Save local file's name for later
-  m_sLocal=sLocal;
 
   //Create local directory if doesn't exist
   QFileInfo FileInfo(m_sLocal);
@@ -359,14 +394,15 @@ void CCloudStorage::dbDownload(const QString &sRemote, const QString &sLocal)
   QNetworkRequest Request;
   Request.setUrl(QUrl("https://content.dropboxapi.com/2/files/download"));
   Request.setRawHeader(QString("Authorization").toUtf8(),QString("Bearer %1").arg(m_sDbAccessToken).toUtf8());
-  Request.setRawHeader(QString("Dropbox-API-Arg").toUtf8(),QString("{ \"path\": \"%1\" }").arg(sRemote).toUtf8());
+  Request.setRawHeader(QString("Dropbox-API-Arg").toUtf8(),QString("{ \"path\": \"%1\" }").arg(m_sRemote).toUtf8());
 
   //Send request
   setRunning(true);
   m_Manager.get(Request);
+  return true;
 }
 
-void CCloudStorage::gdAuthorizationRequest()
+QUrl CCloudStorage::gdAuthorizationRequest()
 {
   //Create code verifier - 47 bytes
   m_BACodeVerifier=QByteArray::number(QRandomGenerator::global()->bounded(10000,99999));
@@ -384,24 +420,27 @@ void CCloudStorage::gdAuthorizationRequest()
   BACodeChallenge.truncate(BACodeChallenge.length()-1);
 
   //Open browser to request user approval and code
-  if (!QDesktopServices::openUrl(QUrl(QString("https://accounts.google.com/o/oauth2/v2/auth?"\
-                                              "client_id=%1&"\
-                                              "redirect_uri=%2&"\
-                                              "response_type=code&"\
-                                              "scope=https://www.googleapis.com/auth/drive.file&"\
-                                              "code_challenge=%3&"\
-                                              "code_challenge_method=S256").
-                                      arg(m_pairGdCredentials.first,m_sGdRedirectURI,BACodeChallenge))))
-    emit accessError("Google Drive",tr("There was a problem opening the browser.\nEnsure there is a default browser in your system."));
+  return QUrl(QString("https://accounts.google.com/o/oauth2/v2/auth?"\
+                      "client_id=%1&"\
+                      "redirect_uri=%2&"\
+                      "response_type=code&"\
+                      "scope=https://www.googleapis.com/auth/drive.file&"\
+                      "code_challenge=%3&"\
+                      "code_challenge_method=S256").
+              arg(m_pairGdCredentials.first,m_sGdRedirectURI,BACodeChallenge));
 }
 
-void CCloudStorage::gdRefreshToken(const QString &sAuthorizationCode)
+bool CCloudStorage::gdRefreshToken(const QString &sUrl)
 {
-  //Validate if another network request is already in progress
-  if (running()) return;
+  //Read the Url and identify if final authorisation is provided
+  QString sAuthorizationCode;
+  QUrl Url;
+  Url.setUrl(sUrl);
 
-  //Validate parameter and global methods
-  if (sAuthorizationCode.isEmpty() || m_BACodeVerifier.isEmpty()) return;
+  if ((Url.hasQuery()) && (Url.query().startsWith("code=")))
+    sAuthorizationCode=Url.query().remove("code=");
+  else
+    return false;
 
   //Set state
   m_iAction=ActionGdRefreshToken;
@@ -423,6 +462,8 @@ void CCloudStorage::gdRefreshToken(const QString &sAuthorizationCode)
   //Send request
   setRunning(true);
   m_Manager.post(Request,s.toUtf8());
+
+  return true;
 }
 
 void CCloudStorage::gdCallAPI(bool bUpload, const QString& sLocal, const QString& sRemote)
@@ -655,6 +696,27 @@ void CCloudStorage::replyFinished(QNetworkReply* pReply)
       break;
     }
 
+      //** DROPBOX - Refresh token
+    case ActionDbRefreshToken:
+    {
+      //Validate operation
+      QJsonDocument JsonDocument=QJsonDocument::fromJson(BABody);
+      QJsonObject JsonObject=JsonDocument.object();
+      if (JsonObject.contains("refresh_token"))
+      {
+        m_sDbRefreshToken=JsonObject.value("refresh_token").toString();
+        setDbauth(true);
+        m_BACodeVerifier.clear();
+      }
+      else
+      {
+        m_sDbRefreshToken.clear();
+        setDbauth(false);
+        emit accessError("Dropbox",JsonObject.value("error_description").toString());
+      }
+      break;
+    }
+
       //** DROPBOX - Access token
     case ActionDbAccessToken:
     {
@@ -664,13 +726,13 @@ void CCloudStorage::replyFinished(QNetworkReply* pReply)
       if (JsonObject.contains("access_token"))
       {
         m_sDbAccessToken=JsonObject.value("access_token").toString();
-        setDbauth(true);
-        m_BACodeVerifier.clear();
+        if (m_bUpload)
+          dbUpload();
+        else
+          dbDownload();
       }
       else
       {
-        m_sDbAccessToken.clear();
-        setDbauth(false);
         emit accessError("Dropbox",JsonObject.value("error_description").toString());
       }
       break;
