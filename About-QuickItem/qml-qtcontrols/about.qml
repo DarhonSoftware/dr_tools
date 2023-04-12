@@ -7,7 +7,9 @@ import com.darhon 1.0
 Page {
     id: id_item
 
-    About {id: id_about}
+    About {
+        id: id_about
+    }
 
     header: ToolBar {
         id: id_toolbar
@@ -15,10 +17,10 @@ Page {
             id: id_layout
             ToolButton {
                 id: id_backButton
-                Layout.preferredWidth: (id_item.width-id_layout.spacing*4)/5
+                Layout.preferredWidth: (id_item.width - id_layout.spacing * 4) / 5
                 Image {
-                    height: id_backButton.height*0.5
-                    width: id_backButton.height*0.5
+                    height: id_backButton.height * 0.5
+                    width: id_backButton.height * 0.5
                     anchors.centerIn: parent
                     source: id_about.iconBack
                     smooth: true
@@ -30,31 +32,35 @@ Page {
                 id: id_button
                 text: qsTr("Code")
                 visible: id_about.codesEnabled
-                Layout.preferredWidth: (id_item.width-id_layout.spacing*4)/5
+                Layout.preferredWidth: (id_item.width - id_layout.spacing * 4) / 5
                 onClicked: {
-                    id_main.visible=!id_main.visible
-                    id_codes.visible=!id_codes.visible
+                    id_main.visible = !id_main.visible
+                    id_codes.visible = !id_codes.visible
                 }
             }
         }
     }
 
-    Label { id: id_labelRef; text: "W"; visible: false }
+    Label {
+        id: id_labelRef
+        text: "W"
+        visible: false
+    }
 
     Column {
         id: id_main
         anchors.centerIn: parent
-        width: parent.width-id_labelRef.height*2
+        width: parent.width - id_labelRef.height * 2
         spacing: id_labelRef.height
 
         //ICON
         Image {
             id: id_iconAbout
-            width: id_labelRef.height*4
-            height: id_labelRef.height*4
+            width: id_labelRef.height * 4
+            height: id_labelRef.height * 4
             anchors.horizontalCenter: parent.horizontalCenter
             source: id_about.iconAbout
-            visible: id_item.Screen.primaryOrientation===Qt.PortraitOrientation
+            visible: id_item.Screen.primaryOrientation === Qt.PortraitOrientation
         }
 
         //Application name
@@ -72,7 +78,7 @@ Page {
                 id: id_version
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: "( " + id_about.version + " )"
-                font.pointSize: id_labelRef.font.pointSize*0.8
+                font.pointSize: id_labelRef.font.pointSize * 0.8
             }
         }
 
@@ -98,8 +104,8 @@ Page {
 
             Image {
                 id: id_iconDarhon
-                width: id_labelRef.height*2
-                height: id_labelRef.height*2
+                width: id_labelRef.height * 2
+                height: id_labelRef.height * 2
                 anchors.verticalCenter: parent.verticalCenter
                 source: id_about.iconDarhon
             }
@@ -110,17 +116,17 @@ Page {
                 Label {
                     id: id_copyright
                     text: id_about.copyright
-                    font.pointSize: id_labelRef.font.pointSize*0.8
+                    font.pointSize: id_labelRef.font.pointSize * 0.8
                 }
                 Label {
                     id: id_support
                     text: id_about.support
-                    font.pointSize: id_labelRef.font.pointSize*0.8
+                    font.pointSize: id_labelRef.font.pointSize * 0.8
                 }
                 Label {
                     id: id_privacy
                     text: id_about.privacy
-                    font.pointSize: id_labelRef.font.pointSize*0.8
+                    font.pointSize: id_labelRef.font.pointSize * 0.8
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
             }
@@ -148,7 +154,6 @@ Page {
             }
         }
 
-
         Column {
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width
@@ -165,7 +170,7 @@ Page {
             TextField {
                 id: id_inputActCode
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: id_appCode.width+id_labelRef.width*2
+                width: id_appCode.width + id_labelRef.width * 2
                 inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
                 inputMask: "HHHH-HHHH-HHHH-HHHH;_"
                 text: id_about.actCode
@@ -181,21 +186,38 @@ Page {
             }
         }
 
-
         states: [
             State {
                 name: "SILVER"
-                when: id_about.actCode==""
-                PropertyChanges { target: id_actCode; visible: false }
-                PropertyChanges { target: id_inputActCode; visible: true }
-                PropertyChanges { target: id_buttonSave; visible: true }
+                when: id_about.actCode == ""
+                PropertyChanges {
+                    target: id_actCode
+                    visible: false
+                }
+                PropertyChanges {
+                    target: id_inputActCode
+                    visible: true
+                }
+                PropertyChanges {
+                    target: id_buttonSave
+                    visible: true
+                }
             },
             State {
                 name: "GOLD"
-                when: id_about.actCode!=""
-                PropertyChanges { target: id_actCode; visible: true }
-                PropertyChanges { target: id_inputActCode; visible: false }
-                PropertyChanges { target: id_buttonSave; visible: false }
+                when: id_about.actCode != ""
+                PropertyChanges {
+                    target: id_actCode
+                    visible: true
+                }
+                PropertyChanges {
+                    target: id_inputActCode
+                    visible: false
+                }
+                PropertyChanges {
+                    target: id_buttonSave
+                    visible: false
+                }
             }
         ]
     }
@@ -205,6 +227,6 @@ Page {
     }
 
     Component.onCompleted: {
-        id_item.focus=true
+        id_item.focus = true
     }
 }

@@ -13,18 +13,17 @@
 
 /***** Global constats *****/
 
-#define TITLE_FLR   QT_TRANSLATE_NOOP("Global","Silver version Restriction")
-#define TEXT_FLR    QT_TRANSLATE_NOOP("Global","Upgrade to Gold version to access all features.")
+#define TITLE_FLR QT_TRANSLATE_NOOP("Global", "Silver version Restriction")
+#define TEXT_FLR QT_TRANSLATE_NOOP("Global", "Upgrade to Gold version to access all features.")
 
 /***** Global enums *****/
 
-
 /***** Global functions *****/
 
-bool g_silverVersion(const QString& sNewActCode=QString(),const QString &sType="10000000");
+bool g_silverVersion(const QString &sNewActCode = QString(), const QString &sType = "10000000");
 void g_registerGoldVersion(const QString &sActCode);
-QString g_appCode(const QString &sType="10000000", bool bCurrentDate=true);
-QString g_actCodeToAppCode(const QString& sActCode);
-QString g_appCodeToActCode(const QString& sAppCode);
+QString g_appCode(const QString &sType = "10000000", bool bCurrentDate = true);
+QString g_actCodeToAppCode(const QString &sActCode);
+QString g_appCodeToActCode(const QString &sAppCode);
 
 #endif // DR_VERSION_H

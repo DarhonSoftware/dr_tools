@@ -1,34 +1,35 @@
+#include "dr_sqlrelationaltablemodel.h"
 #include <QtGui>
 #include <QtSql>
-#include "dr_sqlrelationaltablemodel.h"
 
-CSqlRelationalTableModel::CSqlRelationalTableModel(QObject *pObject) : QSqlRelationalTableModel(pObject)
+CSqlRelationalTableModel::CSqlRelationalTableModel(QObject *pObject)
+    : QSqlRelationalTableModel(pObject)
 {
-  m_hashRoles.clear();
+    m_hashRoles.clear();
 }
 
-QVariant	CSqlRelationalTableModel::data (const QModelIndex & Index, int iRole) const
+QVariant CSqlRelationalTableModel::data(const QModelIndex &Index, int iRole) const
 {
-  if (iRole>=Qt::UserRole)
-    return QSqlRelationalTableModel::data(index(Index.row(),iRole-Qt::UserRole));
+    if (iRole >= Qt::UserRole)
+        return QSqlRelationalTableModel::data(index(Index.row(), iRole - Qt::UserRole));
 
-  return QSqlRelationalTableModel::data(Index,iRole);
+    return QSqlRelationalTableModel::data(Index, iRole);
 }
 
 QHash<int, QByteArray> CSqlRelationalTableModel::roleNames() const
 {
-  return m_hashRoles;
+    return m_hashRoles;
 }
 
-void CSqlRelationalTableModel::setProxyModel(const QString& sTable)
+void CSqlRelationalTableModel::setProxyModel(const QString &sTable)
 {
-  QSqlTableModel Table;
-  Table.setTable(sTable);
-  QSqlRecord Record=Table.record();
+    QSqlTableModel Table;
+    Table.setTable(sTable);
+    QSqlRecord Record = Table.record();
 
-  m_hashRoles.clear();
-  for (int i=0; i<Record.count(); i++)
-    m_hashRoles.insert(Qt::UserRole+i,QByteArray("role_")+Record.fieldName(i).toUtf8());
+    m_hashRoles.clear();
+    for (int i = 0; i < Record.count(); i++)
+        m_hashRoles.insert(Qt::UserRole + i, QByteArray("role_") + Record.fieldName(i).toUtf8());
 
-  setTable(sTable);
+    setTable(sTable);
 }
