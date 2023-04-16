@@ -1,7 +1,7 @@
-import QtQuick 2.5
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.3
-import QtQuick.Window 2.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Window
 import com.darhon 1.0
 
 Page {
@@ -189,7 +189,7 @@ Page {
         states: [
             State {
                 name: "SILVER"
-                when: id_about.actCode == ""
+                when: id_about.actCode === ""
                 PropertyChanges {
                     target: id_actCode
                     visible: false
@@ -205,7 +205,7 @@ Page {
             },
             State {
                 name: "GOLD"
-                when: id_about.actCode != ""
+                when: id_about.actCode !== ""
                 PropertyChanges {
                     target: id_actCode
                     visible: true

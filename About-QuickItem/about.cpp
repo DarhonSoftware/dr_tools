@@ -16,19 +16,18 @@ CAbout::~CAbout() {}
 
 void CAbout::init()
 {
-    setIconAbout("qrc:/others/icons/about.png");
-    setIconBack("qrc:/others/icons/button-back.png");
+    setIconAbout("qrc:/qt/qml/darhon/images/about.png");
+    setIconBack("qrc:/qt/qml/darhon/images/button-back.png");
     setAppName(QString("%1 %2 (Qt - %3)")
-                   .arg("mobiFinance")
+                   .arg("AppName")
                    .arg(qApp->applicationVersion())
                    .arg(QT_VERSION_STR));
-    setCaption(tr("Manage your Personal Accounts"));
-    setDescription(tr("mobiFinance is a simple to use and yet powerful software packed with all "
-                      "the necessary tools to control your accounts."));
-    setIconDarhon("qrc:/others/icons/darhon.png");
-    setCopyright(tr("Copyright 2010-2014 - Darhon Software"));
+    setCaption(tr("Short description"));
+    setDescription(tr("Long description"));
+    setIconDarhon("qrc:/qt/qml/darhon/images/darhon.png");
+    setCopyright(tr("Copyright 2010-20xx - Darhon Software"));
     setSupport(tr("Help & Support") + " - " + QCoreApplication::organizationDomain());
-    setPrivacy(QString("<a href='http://www.darhon.com/faq/284'>%1</a>").arg(tr("Privacy Policy")));
+    setPrivacy(QString("<a href='http://www.darhon.com/..'>%1</a>").arg(tr("Privacy Policy")));
     setAppCode(g_appCode());
 
 #ifdef SILVER_VERSION
