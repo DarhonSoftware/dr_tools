@@ -127,7 +127,7 @@ Page {
                     id: id_privacy
                     text: id_about.privacy
                     font.pointSize: id_labelRef.font.pointSize * 0.8
-                    onLinkActivated: Qt.openUrlExternally(link)
+                    onLinkActivated: link => Qt.openUrlExternally(link)
                 }
             }
         }
