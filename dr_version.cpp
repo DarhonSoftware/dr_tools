@@ -16,8 +16,10 @@ bool g_silverVersion(const QString &sNewActCode, const QString &sType)
     Settings.endGroup();
 
     //Validate code word
-    if (!sActCode.contains(QRegExp("^(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]"
-                                   "){4,4}-(\\d|[A-F]|[a-f]){4,4}$")))
+    QRegularExpression RegExp;
+    RegExp.setPattern("^(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]){4,"
+                      "4}-(\\d|[A-F]|[a-f]){4,4}$");
+    if (!sActCode.contains(RegExp))
         return true;
 
     //Reverse evaluation
@@ -85,7 +87,7 @@ QString g_appCode(const QString &sType, bool bCurrentDate)
 
     //Write AppCode in human version and cut half the original code
     sCode.clear();
-    for (int i = 0, j = 0; i < BACode.count(); i += 2, j++) {
+    for (int i = 0, j = 0; i < BACode.length(); i += 2, j++) {
         if (((j % 4) == 0) && (j > 0))
             sCode += "-";
         sCode += BACode.at(i);
@@ -99,8 +101,11 @@ QString g_actCodeToAppCode(const QString &sActCode)
     bool bOk;
 
     //Validate
-    if (!sActCode.contains(QRegExp("^(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]"
-                                   "){4,4}-(\\d|[A-F]|[a-f]){4,4}$")))
+    QRegularExpression RegExp;
+    RegExp.setPattern("^(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]){4,"
+                      "4}-(\\d|[A-F]|[a-f]){4,4}$");
+
+    if (!sActCode.contains(RegExp))
         return "";
 
     //Process the first 16 bits - shift right circular 1
@@ -141,8 +146,11 @@ QString g_appCodeToActCode(const QString &sAppCode)
     bool bOk;
 
     //Validate
-    if (!sAppCode.contains(QRegExp("^(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]"
-                                   "){4,4}-(\\d|[A-F]|[a-f]){4,4}$")))
+    QRegularExpression RegExp;
+    RegExp.setPattern("^(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]){4,4}-(\\d|[A-F]|[a-f]){4,"
+                      "4}-(\\d|[A-F]|[a-f]){4,4}$");
+
+    if (!sAppCode.contains(RegExp))
         return "";
 
     //Process the first 16 bits - shift left circular 1
