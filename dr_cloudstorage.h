@@ -14,8 +14,7 @@ class CCloudStorage : public QObject
         ActionOdRefreshToken,
         ActionOdAccessToken,
         ActionOdUpload,
-        ActionOdDownloadLink,
-        ActionOdDownloadContent,
+        ActionOdDownload,
         ActionDbRefreshToken,
         ActionDbAccessToken,
         ActionDbUpload,
@@ -131,8 +130,7 @@ private slots:
 
 private:
     bool odUpload();
-    bool odDownloadLink();
-    bool odDownloadContent(const QString &sDownloadUrl);
+    bool odDownload();
     bool dbUpload();
     bool dbDownload();
     bool gdUpload();

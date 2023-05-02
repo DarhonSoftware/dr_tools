@@ -219,10 +219,10 @@ bool CCloudStorage::odUpload()
     return true;
 }
 
-bool CCloudStorage::odDownloadLink()
+bool CCloudStorage::odDownload()
 {
     //Set state
-    m_iAction = ActionOdDownloadLink;
+    m_iAction = ActionOdDownload;
 
     //Prepare Request
     QNetworkRequest Request;
@@ -230,27 +230,6 @@ bool CCloudStorage::odDownloadLink()
         QString("https://graph.microsoft.com/v1.0/me/drive/root:/%1:/content").arg(m_sRemote)));
     Request.setRawHeader(QString("Authorization").toUtf8(),
                          QString("Bearer %1").arg(m_sOdAccessToken).toUtf8());
-
-    //Send request
-    setRunning(true);
-    m_Manager.get(Request);
-    return true;
-}
-
-bool CCloudStorage::odDownloadContent(const QString &sDownloadUrl)
-{
-    //Set state
-    m_iAction = ActionOdDownloadContent;
-
-    //Create local directory if doesn't exist
-    QFileInfo FileInfo(m_sLocal);
-    if (!FileInfo.absoluteDir().exists()) {
-        QDir().mkpath(FileInfo.absolutePath());
-    }
-
-    //Prepare Request
-    QNetworkRequest Request;
-    Request.setUrl(QUrl(sDownloadUrl));
 
     //Send request
     setRunning(true);
@@ -664,7 +643,7 @@ void CCloudStorage::replyFinished(QNetworkReply *pReply)
             if (m_bUpload)
                 odUpload();
             else
-                odDownloadLink();
+                odDownload();
         } else {
             emit accessError("OneDrive", JsonObject.value("error_description").toString());
         }
@@ -686,24 +665,8 @@ void CCloudStorage::replyFinished(QNetworkReply *pReply)
         break;
     }
 
-        //** ONEDRIVE - DownloadLink
-    case ActionOdDownloadLink: {
-        //Validate operation
-        QJsonDocument JsonDocument = QJsonDocument::fromJson(BABody);
-        QJsonObject JsonObject = JsonDocument.object();
-        QString sDownloadUrl = pReply->header(QNetworkRequest::LocationHeader).toString();
-        if (JsonObject.contains("error")) {
-            emit downloadResult(false,
-                                "OneDrive",
-                                JsonObject.value("error").toObject().value("message").toString());
-        } else {
-            odDownloadContent(sDownloadUrl);
-        }
-        break;
-    }
-
-        //** ONEDRIVE - DownloadContent
-    case ActionOdDownloadContent: {
+        //** ONEDRIVE - Download
+    case ActionOdDownload: {
         //Validate operation
         QJsonDocument JsonDocument = QJsonDocument::fromJson(BABody);
         QJsonObject JsonObject = JsonDocument.object();
@@ -728,8 +691,8 @@ void CCloudStorage::replyFinished(QNetworkReply *pReply)
         QJsonObject JsonObject = JsonDocument.object();
         if (JsonObject.contains("refresh_token")) {
             m_sDbRefreshToken = JsonObject.value("refresh_token").toString();
-            setDbauth(true);
             m_BACodeVerifier.clear();
+            setDbauth(true);
         } else {
             m_sDbRefreshToken.clear();
             setDbauth(false);
