@@ -1,12 +1,15 @@
+//Release 1
 #ifndef ABOUT_H
 #define ABOUT_H
 
 #include <QObject>
 #include <QString>
+#include <qqmlintegration.h>
 
 class CAbout : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
 
     Q_PROPERTY(QString iconAbout READ iconAbout WRITE setIconAbout NOTIFY iconAboutChanged)
     Q_PROPERTY(QString iconBack READ iconBack WRITE setIconBack NOTIFY iconBackChanged)
@@ -37,7 +40,7 @@ class CAbout : public QObject
     bool m_bCodesEnabled;
 
 public:
-    explicit CAbout(QObject *pObject = 0);
+    explicit CAbout(QObject *pObject = nullptr);
     ~CAbout();
 
     void setIconAbout(const QString &sIconAbout)

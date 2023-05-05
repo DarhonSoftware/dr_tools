@@ -1,3 +1,4 @@
+//Release 1
 #include <QtCore>
 #ifdef Q_OS_ANDROID
 #include <QtCore/private/qandroidextras_p.h> //This namespace is under development and is subject to change

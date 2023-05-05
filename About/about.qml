@@ -1,13 +1,14 @@
+//Release 1
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
-import com.darhon 1.0
+import darhon
 
 Page {
     id: id_item
 
-    About {
+    CAbout {
         id: id_about
     }
 
@@ -18,14 +19,7 @@ Page {
             ToolButton {
                 id: id_backButton
                 Layout.preferredWidth: (id_item.width - id_layout.spacing * 4) / 5
-                Image {
-                    height: id_backButton.height * 0.5
-                    width: id_backButton.height * 0.5
-                    anchors.centerIn: parent
-                    source: id_about.iconBack
-                    smooth: true
-                }
-
+                icon.source: id_about.iconBack
                 onClicked: id_stack.pop()
             }
             ToolButton {
@@ -43,21 +37,20 @@ Page {
 
     Label {
         id: id_labelRef
-        text: "W"
         visible: false
     }
 
     Column {
         id: id_main
         anchors.centerIn: parent
-        width: parent.width - id_labelRef.height * 2
-        spacing: id_labelRef.height
+        width: parent.width - id_labelRef.font.pixelSize * 2
+        spacing: id_labelRef.font.pixelSize
 
         //ICON
         Image {
             id: id_iconAbout
-            width: id_labelRef.height * 4
-            height: id_labelRef.height * 4
+            width: id_labelRef.font.pixelSize * 4
+            height: id_labelRef.font.pixelSize * 4
             anchors.horizontalCenter: parent.horizontalCenter
             source: id_about.iconAbout
             visible: id_item.Screen.primaryOrientation === Qt.PortraitOrientation
@@ -104,8 +97,8 @@ Page {
 
             Image {
                 id: id_iconDarhon
-                width: id_labelRef.height * 2
-                height: id_labelRef.height * 2
+                width: id_labelRef.font.pixelSize * 2
+                height: id_labelRef.font.pixelSize * 2
                 anchors.verticalCenter: parent.verticalCenter
                 source: id_about.iconDarhon
             }
@@ -128,6 +121,7 @@ Page {
                     text: id_about.privacy
                     font.pointSize: id_labelRef.font.pointSize * 0.8
                     onLinkActivated: link => Qt.openUrlExternally(link)
+                    linkColor: "OrangeRed"
                 }
             }
         }
@@ -137,7 +131,7 @@ Page {
         id: id_codes
         anchors.centerIn: parent
         width: parent.width
-        spacing: id_labelRef.height
+        spacing: id_labelRef.font.pixelSize
         visible: false
 
         Column {
@@ -170,7 +164,7 @@ Page {
             TextField {
                 id: id_inputActCode
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: id_appCode.width + id_labelRef.width * 2
+                width: id_appCode.width + id_labelRef.font.pixelSize * 2
                 inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
                 inputMask: "HHHH-HHHH-HHHH-HHHH;_"
                 text: id_about.actCode
@@ -224,9 +218,5 @@ Page {
 
     Keys.onBackPressed: {
         id_backButton.clicked()
-    }
-
-    Component.onCompleted: {
-        id_item.focus = true
     }
 }
