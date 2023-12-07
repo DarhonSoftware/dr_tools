@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #include <QtCore>
 #ifdef Q_OS_ANDROID
 #include <QtCore/private/qandroidextras_p.h> //This namespace is under development and is subject to change
@@ -20,7 +20,7 @@ QString AndroidDR::standardPath(const QString &sFolderType, const QString &sFold
     return sDir;
 }
 
-bool AndroidDR::setPermissions(const QStringList &lsPermissions)
+bool AndroidDR::requestPermissions(const QStringList &lsPermissions)
 {
     // BEGIN This namespace is under development and is subject to change
 

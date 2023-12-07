@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef DR_ANDROID_H
 #define DR_ANDROID_H
 #include <QtCore>
@@ -7,7 +7,7 @@
 namespace AndroidDR {
 
 QString standardPath(const QString &sFolderType, const QString &sFolderEnd);
-bool setPermissions(const QStringList &lsPermissions);
+bool requestPermissions(const QStringList &lsPermissions);
 QString translatePathFromUri(const QString &sUri);
 
 } // namespace AndroidDR
