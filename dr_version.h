@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef DR_VERSION_H
 #define DR_VERSION_H
 

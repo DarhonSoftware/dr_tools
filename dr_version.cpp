@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #include "dr_version.h"
 #include <QtCore>
 #include <QtNetwork>
@@ -11,7 +11,7 @@ bool g_silverVersion(const QString &sNewActCode, const QString &sType)
     //Load activation code & date from file
     QSettings Settings;
     Settings.beginGroup("Version");
-    DateSubscription = QDate::fromJulianDay(Settings.value("key2", 2415021).toInt());
+    DateSubscription = QDate::fromJulianDay(Settings.value("key2", 2415021).toLongLong());
     if (sNewActCode.isEmpty())
         sActCode = Settings.value("key1", "").toString();
     Settings.endGroup();
