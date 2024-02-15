@@ -3,8 +3,6 @@
 #include <QtQuick>
 #include "dr_profile.h"
 #include "dr_version.h"
-#include "global.h"
-#include "globalobject.h"
 
 CAbout::CAbout(QObject *pObject)
     : QObject(pObject)
@@ -16,15 +14,13 @@ CAbout::~CAbout() {}
 
 void CAbout::init()
 {
-    setIconAbout("qrc:/qt/qml/darhon/images/about.png");
-    setIconBack("qrc:/qt/qml/darhon/images/button-back.png");
-    setAppName(QString("%1 %2 (Qt - %3)")
-                   .arg("AppName")
-                   .arg(qApp->applicationVersion())
-                   .arg(QT_VERSION_STR));
+    setIconAbout("");
+    setIconBack("");
+    setAppName(
+        QString("%1 %2 (Qt - %3)").arg("AppName", qApp->applicationVersion(), QT_VERSION_STR));
     setCaption(tr("Short description"));
     setDescription(tr("Long description"));
-    setIconDarhon("qrc:/qt/qml/darhon/images/darhon.png");
+    setIconDarhon("");
     setCopyright(tr("Copyright 2010-20xx - Darhon Software"));
     setSupport(tr("Help & Support") + " - " + QCoreApplication::organizationDomain());
     setPrivacy(QString("<a href='http://www.darhon.com/..'>%1</a>").arg(tr("Privacy Policy")));
