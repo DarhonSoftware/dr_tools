@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #include "dr_pop3client.h"
 #include <QtCore>
 #include <QtNetwork>
@@ -146,9 +146,7 @@ bool CPop3Client::login(const QString &sUser, const QString &sPassword, AuthMeth
 
     if (iMethod == AuthAPOP) {
         //Communication: APOP command [username + ' ' + md5(timestamp+secret)]
-        if (!sendMessage("APOP " + sUser.toUtf8() + " "
-                         + QCryptographicHash::hash(m_BATimestamp + m_sSecret.toUtf8(),
-                                                    QCryptographicHash::Md5)))
+        if (!sendMessage("APOP " + sUser.toUtf8() + " " + QCryptographicHash::hash(m_BATimestamp + m_sSecret.toUtf8(), QCryptographicHash::Md5)))
             return false;
         if (!waitForResponse(false))
             return false;

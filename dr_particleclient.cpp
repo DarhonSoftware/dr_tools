@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #include "dr_particleclient.h"
 #include <QtCore>
 #include <QtNetwork>
@@ -63,8 +63,7 @@ bool CParticleClient::listDevices()
     //Prepare Request
     QNetworkRequest Request;
     Request.setUrl(QUrl("https://api.particle.io/v1/devices"));
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sAccessToken).toUtf8());
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sAccessToken).toUtf8());
 
     //Send request
     m_Manager.get(Request);
@@ -94,10 +93,8 @@ bool CParticleClient::variable(const QString &sDeviceId, const QString &sVariabl
 
     //Prepare Request
     QNetworkRequest Request;
-    Request.setUrl(
-        QUrl(QString("https://api.particle.io/v1/devices/%1/%2").arg(sDeviceId).arg(sVariable)));
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sAccessToken).toUtf8());
+    Request.setUrl(QUrl(QString("https://api.particle.io/v1/devices/%1/%2").arg(sDeviceId).arg(sVariable)));
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sAccessToken).toUtf8());
 
     //Send request
     m_Manager.get(Request);
@@ -111,9 +108,7 @@ bool CParticleClient::variable(const QString &sDeviceId, const QString &sVariabl
     return true;
 }
 
-bool CParticleClient::function(const QString &sDeviceId,
-                               const QString &sFunction,
-                               const QString &sArgument)
+bool CParticleClient::function(const QString &sDeviceId, const QString &sFunction, const QString &sArgument)
 {
     //Reset last error
     m_sLastError.clear();
@@ -132,12 +127,10 @@ bool CParticleClient::function(const QString &sDeviceId,
 
     //Prepare Request
     QNetworkRequest Request;
-    Request.setUrl(
-        QUrl(QString("https://api.particle.io/v1/devices/%1/%2").arg(sDeviceId).arg(sFunction)));
+    Request.setUrl(QUrl(QString("https://api.particle.io/v1/devices/%1/%2").arg(sDeviceId).arg(sFunction)));
     Request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     Request.setHeader(QNetworkRequest::ContentLengthHeader, s.toUtf8().size());
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sAccessToken).toUtf8());
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sAccessToken).toUtf8());
 
     //Send request
     m_Manager.post(Request, s.toUtf8());
@@ -151,10 +144,7 @@ bool CParticleClient::function(const QString &sDeviceId,
     return true;
 }
 
-bool CParticleClient::publishEvent(const QString &sEventName,
-                                   const QString &sData,
-                                   bool bPrivate,
-                                   int iTtl)
+bool CParticleClient::publishEvent(const QString &sEventName, const QString &sData, bool bPrivate, int iTtl)
 {
     //Reset last error
     m_sLastError.clear();
@@ -183,8 +173,7 @@ bool CParticleClient::publishEvent(const QString &sEventName,
     Request.setUrl(QUrl("https://api.particle.io/v1/devices/events"));
     Request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     Request.setHeader(QNetworkRequest::ContentLengthHeader, s.toUtf8().size());
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sAccessToken).toUtf8());
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sAccessToken).toUtf8());
 
     //Send request
     m_Manager.post(Request, s.toUtf8());
@@ -198,9 +187,7 @@ bool CParticleClient::publishEvent(const QString &sEventName,
     return true;
 }
 
-bool CParticleClient::subscribeEvent(Event iType,
-                                     const QString &sEventName,
-                                     const QString &sDeviceId)
+bool CParticleClient::subscribeEvent(Event iType, const QString &sEventName, const QString &sDeviceId)
 {
     //Reset last error
     m_sLastError.clear();
@@ -224,9 +211,7 @@ bool CParticleClient::subscribeEvent(Event iType,
         sUrl = QString("https://api.particle.io/v1/devices/events/%1").arg(sEventName);
         break;
     case EventDevice:
-        sUrl = QString("https://api.particle.io/v1/devices/%1/events/%2")
-                   .arg(sDeviceId)
-                   .arg(sEventName);
+        sUrl = QString("https://api.particle.io/v1/devices/%1/events/%2").arg(sDeviceId).arg(sEventName);
         break;
     default:
         break;
@@ -235,8 +220,7 @@ bool CParticleClient::subscribeEvent(Event iType,
     //Prepare Request
     QNetworkRequest Request;
     Request.setUrl(QUrl(sUrl));
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sAccessToken).toUtf8());
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sAccessToken).toUtf8());
 
     //Send request
     m_pFirstReply = m_Manager.get(Request);
@@ -278,9 +262,7 @@ void CParticleClient::replyFinished(QNetworkReply *pReply)
                 if (JsonArray.at(i).isObject()) {
                     QJsonObject JsonObjDevice = JsonArray.at(i).toObject();
                     Device.bConnected = JsonObjDevice.value("connected").toBool();
-                    Device.DateLastHeard
-                        = QDateTime::fromString(JsonObjDevice.value("last_heard").toString(),
-                                                Qt::ISODate);
+                    Device.DateLastHeard = QDateTime::fromString(JsonObjDevice.value("last_heard").toString(), Qt::ISODate);
                     Device.sDeviceId = JsonObjDevice.value("id").toString();
                     Device.sName = JsonObjDevice.value("name").toString();
                     m_lstDevices.append(Device);
@@ -386,8 +368,7 @@ void CParticleClient::eventReceived()
                 iIndex1 = m_BAEvent.indexOf(pEventText);
                 iIndex2 = m_BAEvent.indexOf("\n", iIndex1);
                 if ((iIndex1 != -1) && (iIndex2 != -1)) {
-                    m_BAEvent = m_BAEvent.mid(iIndex1 + QByteArray(pEventText).size(),
-                                              iIndex2 - iIndex1 - QByteArray(pEventText).size());
+                    m_BAEvent = m_BAEvent.mid(iIndex1 + QByteArray(pEventText).size(), iIndex2 - iIndex1 - QByteArray(pEventText).size());
                     BABody = BABody.right(BABody.size() - iIndex2 - 1);
                 } else {
                     m_BAEvent.clear();
@@ -400,8 +381,7 @@ void CParticleClient::eventReceived()
                 iIndex1 = m_BAData.indexOf(pDataText);
                 iIndex2 = m_BAData.indexOf("\n\n", iIndex1);
                 if ((iIndex1 != -1) && (iIndex2 != -1)) {
-                    m_BAData = m_BAData.mid(iIndex1 + QByteArray(pDataText).size(),
-                                            iIndex2 - iIndex1 - QByteArray(pDataText).size());
+                    m_BAData = m_BAData.mid(iIndex1 + QByteArray(pDataText).size(), iIndex2 - iIndex1 - QByteArray(pDataText).size());
                     QJsonDocument JsonDocument = QJsonDocument::fromJson(m_BAData);
                     if (JsonDocument.isObject()) {
                         QJsonObject JsonObject = JsonDocument.object();

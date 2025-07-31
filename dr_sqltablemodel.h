@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef SQLTABLEMODEL_H
 #define SQLTABLEMODEL_H
 

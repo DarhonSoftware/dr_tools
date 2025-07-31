@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef DR_SPARKCLIENT_H
 #define DR_SPARKCLIENT_H
 
@@ -19,18 +19,12 @@ class CParticleClient : public QObject
     Q_OBJECT
 
 public:
-    enum Action {
-        ActionListDevices,
-        ActionVariable,
-        ActionFunction,
-        ActionSubscribeEvent,
-        ActionPublishEvent
-    };
+    enum Action { ActionListDevices, ActionVariable, ActionFunction, ActionSubscribeEvent, ActionPublishEvent };
 
     enum Event {
         EventGlobal, //Subscribe to the firehose of public events, plus private events published by devices one owns
-        EventOwn,   //Subscribe to all events, public and private, published by devices one owns
-        EventDevice //Subscribe to events from one specific device
+        EventOwn,    //Subscribe to all events, public and private, published by devices one owns
+        EventDevice  //Subscribe to events from one specific device
     };
 
 private:
@@ -75,16 +69,9 @@ public:
     //Services
     bool listDevices();
     bool variable(const QString &sDeviceId, const QString &sVariable);
-    bool function(const QString &sDeviceId,
-                  const QString &sFunction,
-                  const QString &sArgument = QString());
-    bool publishEvent(const QString &sEventName,
-                      const QString &sData,
-                      bool bPrivate = true,
-                      int iTtl = 60);
-    bool subscribeEvent(Event iType,
-                        const QString &sEventName,
-                        const QString &sDeviceId = QString());
+    bool function(const QString &sDeviceId, const QString &sFunction, const QString &sArgument = QString());
+    bool publishEvent(const QString &sEventName, const QString &sData, bool bPrivate = true, int iTtl = 60);
+    bool subscribeEvent(Event iType, const QString &sEventName, const QString &sDeviceId = QString());
 
     //Responses
     QList<SDevice> *responseDevices() { return &m_lstDevices; }

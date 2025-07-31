@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef DR_CTCPSERVER_H
 #define DR_CTCPSERVER_H
 
@@ -16,8 +16,8 @@ class CTcpServer : public QObject
 
 public:
     enum Error {
-        ErrorNoError, // No error occurred.
-        ErrorNoPassSet, // No pass was set. You can not use encrypt/decrypt capability without password.
+        ErrorNoError,                // No error occurred.
+        ErrorNoPassSet,              // No pass was set. You can not use encrypt/decrypt capability without password.
         ErrorNoMarkSet,              // No mark was set. You can not build a package without a mark.
         ErrorPackageSize,            // Package size is bigger than 65k
         ErrorSocketListen,           // Server socket cannot listen

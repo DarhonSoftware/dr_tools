@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #include "dr_crypt.h"
 #include <QByteArray>
 #include <QCryptographicHash>

@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef SQLRELATIONALTABLEMODEL_H
 #define SQLRELATIONALTABLEMODEL_H
 

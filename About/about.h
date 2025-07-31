@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef ABOUT_H
 #define ABOUT_H
 

@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #include "dr_sql.h"
 #include <QtCore>
 #include <QtSql>
@@ -19,18 +19,10 @@ qulonglong g_rowCount(const QSqlTableModel &Model)
     return 0;
 }
 
-bool g_findRecordFromTable(const QSqlTableModel &Model,
-                           const QString &sSearchField,
-                           const QString &sSearchValue,
-                           const QString &sResultField,
-                           QVariant *pResultValue)
+bool g_findRecordFromTable(
+    const QSqlTableModel &Model, const QString &sSearchField, const QString &sSearchValue, const QString &sResultField, QVariant *pResultValue)
 {
-    return g_findRecordFromTable(Model.tableName(),
-                                 sSearchField,
-                                 sSearchValue,
-                                 sResultField,
-                                 pResultValue,
-                                 Model.filter());
+    return g_findRecordFromTable(Model.tableName(), sSearchField, sSearchValue, sResultField, pResultValue, Model.filter());
 }
 
 bool g_findRecordFromTable(const QString &sModel,
@@ -48,11 +40,9 @@ bool g_findRecordFromTable(const QString &sModel,
         sField = sSearchField;
 
     if (sFilter.isEmpty())
-        Query.exec("SELECT " + sField + " FROM " + sModel + " WHERE " + sSearchField + " = '"
-                   + sSearchValue + "'");
+        Query.exec("SELECT " + sField + " FROM " + sModel + " WHERE " + sSearchField + " = '" + sSearchValue + "'");
     else
-        Query.exec("SELECT " + sField + " FROM " + sModel + " WHERE " + sSearchField + " = '"
-                   + sSearchValue + "' AND " + sFilter);
+        Query.exec("SELECT " + sField + " FROM " + sModel + " WHERE " + sSearchField + " = '" + sSearchValue + "' AND " + sFilter);
 
     if (Query.next()) {
         if (pResultValue)

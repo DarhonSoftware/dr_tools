@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef DR_CTCPCLIENT_H
 #define DR_CTCPCLIENT_H
 
@@ -15,10 +15,10 @@ class CTcpClient : public QObject
 
 public:
     enum Error {
-        ErrorNoError, // No error occurred.
-        ErrorNoPassSet, // No pass was set. You can not use encrypt/decrypt capability without password.
-        ErrorNoMarkSet,   // No mark was set. You can not build a package without a mark.
-        ErrorPackageSize, // Package size is bigger than 65k
+        ErrorNoError,                   // No error occurred.
+        ErrorNoPassSet,                 // No pass was set. You can not use encrypt/decrypt capability without password.
+        ErrorNoMarkSet,                 // No mark was set. You can not build a package without a mark.
+        ErrorPackageSize,               // Package size is bigger than 65k
         ErrorSocketTimeoutConnection,   // Socket timeout while waiting for connection
         ErrorSocketTimeoutReadyRead,    // Socket timeout while waiting for data to read from buffer
         ErrorSocketTimeoutBytesWritten, // Socket timeout while waiting to write data to buffer

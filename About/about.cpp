@@ -16,8 +16,7 @@ void CAbout::init()
 {
     setIconAbout("");
     setIconBack("");
-    setAppName(
-        QString("%1 %2 (Qt - %3)").arg("AppName", qApp->applicationVersion(), QT_VERSION_STR));
+    setAppName(QString("%1 %2 (Qt - %3)").arg("AppName", qApp->applicationVersion(), QT_VERSION_STR));
     setCaption(tr("Short description"));
     setDescription(tr("Long description"));
     setIconDarhon("");

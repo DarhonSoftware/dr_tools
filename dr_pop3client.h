@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef DR_CPOP3CLIENT_H
 #define DR_CPOP3CLIENT_H
 

@@ -1,4 +1,4 @@
-//Release 2
+//Release 3
 #include <QtCore>
 #ifdef Q_OS_ANDROID
 #include <QtCore/private/qandroidextras_p.h> //This namespace is under development and is subject to change
@@ -8,14 +8,12 @@ QString AndroidDR::standardPath(const QString &sFolderType, const QString &sFold
 {
     QString sDir = "";
 
-    QJniObject JniString = QJniObject::getStaticObjectField<jstring>("android/os/Environment",
-                                                                     sFolderType.toLatin1());
+    QJniObject JniString = QJniObject::getStaticObjectField<jstring>("android/os/Environment", sFolderType.toLatin1());
     QJniObject JniFile = QJniObject::callStaticObjectMethod("android/os/Environment",
                                                             "getExternalStoragePublicDirectory",
                                                             "(Ljava/lang/String;)Ljava/io/File;",
                                                             JniString.object<jstring>());
-    sDir = QString("%1/%2").arg(JniFile.callObjectMethod<jstring>("getAbsolutePath").toString(),
-                                sFolderEnd);
+    sDir = QString("%1/%2").arg(JniFile.callObjectMethod<jstring>("getAbsolutePath").toString(), sFolderEnd);
 
     return sDir;
 }

@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #include "dr_smtpclient.h"
 #include <QtCore>
 #include <QtNetwork>
@@ -148,13 +148,7 @@ bool CSmtpClient::login(const QString &sUser, const QString &sPassword, AuthMeth
 
     if (iMethod == AuthPlain) {
         //Communication: AUTH PLAIN command ['\0' + username + '\0' + password]
-        if (!sendMessage("AUTH PLAIN "
-                         + QByteArray()
-                               .append(char(0))
-                               .append(sUser.toUtf8())
-                               .append(char(0))
-                               .append(sPassword.toUtf8())
-                               .toBase64()))
+        if (!sendMessage("AUTH PLAIN " + QByteArray().append(char(0)).append(sUser.toUtf8()).append(char(0)).append(sPassword.toUtf8()).toBase64()))
             return false;
         if (!waitForResponse())
             return false;
@@ -200,12 +194,8 @@ bool CSmtpClient::login(const QString &sUser, const QString &sPassword, AuthMeth
     return true;
 }
 
-bool CSmtpClient::sendMail(const QString &sFrom,
-                           const QString &sNameFrom,
-                           const QString &sTo,
-                           const QString &sNameTo,
-                           const QString &sSubject,
-                           const QString &sBody)
+bool CSmtpClient::sendMail(
+    const QString &sFrom, const QString &sNameFrom, const QString &sTo, const QString &sNameTo, const QString &sSubject, const QString &sBody)
 {
     //Validate if socket is connected
     if (!m_pSocket) {

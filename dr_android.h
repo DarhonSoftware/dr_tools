@@ -1,4 +1,4 @@
-//Release 2
+//Release 3
 #ifndef DR_ANDROID_H
 #define DR_ANDROID_H
 #include <QtCore>

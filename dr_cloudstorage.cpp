@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #include "dr_cloudstorage.h"
 #include <QDesktopServices>
 #include <QRandomGenerator>
@@ -23,16 +23,12 @@ CCloudStorage::CCloudStorage(QObject *pObject)
     Settings.beginGroup("CloudStorage");
 
     //Load access tokens from file
-    m_sOdRefreshToken = m_Crypt.decryptArray(
-        QByteArray::fromBase64(Settings.value("od_token").toByteArray()));
-    m_sDbRefreshToken = m_Crypt.decryptArray(
-        QByteArray::fromBase64(Settings.value("db_token").toByteArray()));
-    m_sGdRefreshToken = m_Crypt.decryptArray(
-        QByteArray::fromBase64(Settings.value("gd_token").toByteArray()));
+    m_sOdRefreshToken = m_Crypt.decryptArray(QByteArray::fromBase64(Settings.value("od_token").toByteArray()));
+    m_sDbRefreshToken = m_Crypt.decryptArray(QByteArray::fromBase64(Settings.value("db_token").toByteArray()));
+    m_sGdRefreshToken = m_Crypt.decryptArray(QByteArray::fromBase64(Settings.value("gd_token").toByteArray()));
 
     //Load Google Drive parameters from file
-    m_sGdFileId = m_Crypt.decryptArray(
-        QByteArray::fromBase64(Settings.value("gd_fileId").toByteArray()));
+    m_sGdFileId = m_Crypt.decryptArray(QByteArray::fromBase64(Settings.value("gd_fileId").toByteArray()));
 
     //Settings - End group
     Settings.endGroup();
@@ -93,9 +89,7 @@ QUrl CCloudStorage::odAuthorizationRequest()
     m_BACodeVerifier.truncate(m_BACodeVerifier.length() - 1);
 
     //Create code challenge - 43 bytes
-    QByteArray BACodeChallenge = QCryptographicHash::hash(m_BACodeVerifier,
-                                                          QCryptographicHash::Sha256)
-                                     .toBase64(QByteArray::Base64UrlEncoding);
+    QByteArray BACodeChallenge = QCryptographicHash::hash(m_BACodeVerifier, QCryptographicHash::Sha256).toBase64(QByteArray::Base64UrlEncoding);
     BACodeChallenge.truncate(BACodeChallenge.length() - 1);
 
     return QUrl(QString("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?"
@@ -131,10 +125,7 @@ bool CCloudStorage::odRefreshToken(const QString &sUrl)
                         "code=%2&"
                         "redirect_uri=%3&"
                         "code_verifier=%4")
-                    .arg(m_pairOdCredentials.first,
-                         sAuthorizationCode,
-                         m_sOdRedirectURI,
-                         m_BACodeVerifier);
+                    .arg(m_pairOdCredentials.first, sAuthorizationCode, m_sOdRedirectURI, m_BACodeVerifier);
 
     QNetworkRequest Request;
     Request.setUrl(QUrl("https://login.microsoftonline.com/common/oauth2/v2.0/token"));
@@ -169,7 +160,7 @@ void CCloudStorage::odCallAPI(bool bUpload, const QString &sLocal, const QString
     //Extract code & create query
     QString s = QString("client_id=%1&"
                         "grant_type=refresh_token&"
-                        "scope=files.readwrite offline_access&"
+                        "scope=files.readwrite&"
                         "refresh_token=%2")
                     .arg(m_pairOdCredentials.first, m_sOdRefreshToken);
 
@@ -208,11 +199,9 @@ bool CCloudStorage::odUpload()
 
     //Prepare Request
     QNetworkRequest Request;
-    Request.setUrl(QUrl(
-        QString("https://graph.microsoft.com/v1.0/me/drive/root:/%1:/content").arg(m_sRemote)));
+    Request.setUrl(QUrl(QString("https://graph.microsoft.com/v1.0/me/drive/root:/%1:/content").arg(m_sRemote)));
     Request.setHeader(QNetworkRequest::ContentLengthHeader, m_BABuffer.size());
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sOdAccessToken).toUtf8());
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sOdAccessToken).toUtf8());
 
     //Send request
     setRunning(true);
@@ -222,17 +211,15 @@ bool CCloudStorage::odUpload()
 
 bool CCloudStorage::odDownload()
 {
-    //Set state
+    // Set state
     m_iAction = ActionOdDownload;
 
-    //Prepare Request
+    // Prepare Request
     QNetworkRequest Request;
-    Request.setUrl(QUrl(
-        QString("https://graph.microsoft.com/v1.0/me/drive/root:/%1:/content").arg(m_sRemote)));
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sOdAccessToken).toUtf8());
+    Request.setUrl(QUrl(QString("https://graph.microsoft.com/v1.0/me/drive/root:/%1:/content").arg(m_sRemote)));
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sOdAccessToken).toUtf8());
 
-    //Send request
+    // Send request
     setRunning(true);
     m_Manager.get(Request);
     return true;
@@ -252,9 +239,7 @@ QUrl CCloudStorage::dbAuthorizationRequest()
     m_BACodeVerifier.truncate(m_BACodeVerifier.length() - 1);
 
     //Create code challenge - 43 bytes
-    QByteArray BACodeChallenge = QCryptographicHash::hash(m_BACodeVerifier,
-                                                          QCryptographicHash::Sha256)
-                                     .toBase64(QByteArray::Base64UrlEncoding);
+    QByteArray BACodeChallenge = QCryptographicHash::hash(m_BACodeVerifier, QCryptographicHash::Sha256).toBase64(QByteArray::Base64UrlEncoding);
     BACodeChallenge.truncate(BACodeChallenge.length() - 1);
 
     //Open browser to request user approval and code
@@ -290,10 +275,7 @@ bool CCloudStorage::dbRefreshToken(const QString &sUrl)
                         "redirect_uri=%2&"
                         "code_verifier=%3&"
                         "client_id=%4")
-                    .arg(sAuthorizationCode,
-                         m_sDbRedirectURI,
-                         m_BACodeVerifier,
-                         m_pairDbCredentials.first);
+                    .arg(sAuthorizationCode, m_sDbRedirectURI, m_BACodeVerifier, m_pairDbCredentials.first);
 
     QNetworkRequest Request;
     Request.setUrl(QUrl("https://api.dropboxapi.com/oauth2/token"));
@@ -368,12 +350,8 @@ bool CCloudStorage::dbUpload()
     QNetworkRequest Request;
     Request.setUrl(QUrl("https://content.dropboxapi.com/2/files/upload"));
     Request.setHeader(QNetworkRequest::ContentLengthHeader, m_BABuffer.size());
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sDbAccessToken).toUtf8());
-    Request.setRawHeader(QString("Dropbox-API-Arg").toUtf8(),
-                         QString("{ \"path\": \"%1\",\"mode\":\"overwrite\" }")
-                             .arg(m_sRemote)
-                             .toUtf8());
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sDbAccessToken).toUtf8());
+    Request.setRawHeader(QString("Dropbox-API-Arg").toUtf8(), QString("{ \"path\": \"%1\",\"mode\":\"overwrite\" }").arg(m_sRemote).toUtf8());
     Request.setHeader(QNetworkRequest::ContentTypeHeader, "application/octet-stream");
 
     //Send request
@@ -396,10 +374,8 @@ bool CCloudStorage::dbDownload()
     //Prepare Request
     QNetworkRequest Request;
     Request.setUrl(QUrl("https://content.dropboxapi.com/2/files/download"));
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sDbAccessToken).toUtf8());
-    Request.setRawHeader(QString("Dropbox-API-Arg").toUtf8(),
-                         QString("{ \"path\": \"%1\" }").arg(m_sRemote).toUtf8());
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sDbAccessToken).toUtf8());
+    Request.setRawHeader(QString("Dropbox-API-Arg").toUtf8(), QString("{ \"path\": \"%1\" }").arg(m_sRemote).toUtf8());
 
     //Send request
     setRunning(true);
@@ -421,9 +397,7 @@ QUrl CCloudStorage::gdAuthorizationRequest()
     m_BACodeVerifier.truncate(m_BACodeVerifier.length() - 1);
 
     //Create code challenge - 43 bytes
-    QByteArray BACodeChallenge = QCryptographicHash::hash(m_BACodeVerifier,
-                                                          QCryptographicHash::Sha256)
-                                     .toBase64(QByteArray::Base64UrlEncoding);
+    QByteArray BACodeChallenge = QCryptographicHash::hash(m_BACodeVerifier, QCryptographicHash::Sha256).toBase64(QByteArray::Base64UrlEncoding);
     BACodeChallenge.truncate(BACodeChallenge.length() - 1);
 
     //Open browser to request user approval and code
@@ -459,11 +433,7 @@ bool CCloudStorage::gdRefreshToken(const QString &sUrl)
                         "code_verifier=%4&"
                         "grant_type=authorization_code&"
                         "redirect_uri=%5")
-                    .arg(m_pairGdCredentials.first,
-                         m_pairGdCredentials.second,
-                         sAuthorizationCode,
-                         m_BACodeVerifier,
-                         m_sGdRedirectURI);
+                    .arg(m_pairGdCredentials.first, m_pairGdCredentials.second, sAuthorizationCode, m_BACodeVerifier, m_sGdRedirectURI);
 
     QNetworkRequest Request;
     Request.setUrl(QUrl("https://oauth2.googleapis.com/token"));
@@ -547,13 +517,10 @@ bool CCloudStorage::gdUpload()
 
     //Prepare Request
     QNetworkRequest Request;
-    Request.setUrl(
-        QUrl(QString("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart")));
-    Request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      QString("multipart/related; boundary=%1").arg(sBoundary));
+    Request.setUrl(QUrl(QString("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart")));
+    Request.setHeader(QNetworkRequest::ContentTypeHeader, QString("multipart/related; boundary=%1").arg(sBoundary));
     Request.setHeader(QNetworkRequest::ContentLengthHeader, m_BABuffer.size());
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sGdAccessToken).toUtf8());
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sGdAccessToken).toUtf8());
 
     //Send request
     setRunning(true);
@@ -580,10 +547,8 @@ bool CCloudStorage::gdDownload()
 
     //Prepare Request
     QNetworkRequest Request;
-    Request.setUrl(
-        QUrl(QString("https://www.googleapis.com/drive/v3/files/%1?alt=media").arg(m_sGdFileId)));
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sGdAccessToken).toUtf8());
+    Request.setUrl(QUrl(QString("https://www.googleapis.com/drive/v3/files/%1?alt=media").arg(m_sGdFileId)));
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sGdAccessToken).toUtf8());
 
     //Send request
     setRunning(true);
@@ -602,8 +567,7 @@ bool CCloudStorage::gdDelete(const QString &sId)
     //Prepare Request
     QNetworkRequest Request;
     Request.setUrl(QUrl("https://www.googleapis.com/drive/v3/files/" + sId));
-    Request.setRawHeader(QString("Authorization").toUtf8(),
-                         QString("Bearer %1").arg(m_sGdAccessToken).toUtf8());
+    Request.setRawHeader(QString("Authorization").toUtf8(), QString("Bearer %1").arg(m_sGdAccessToken).toUtf8());
 
     //Send request
     setRunning(true);
@@ -657,9 +621,7 @@ void CCloudStorage::replyFinished(QNetworkReply *pReply)
         QJsonDocument JsonDocument = QJsonDocument::fromJson(BABody);
         QJsonObject JsonObject = JsonDocument.object();
         if ((JsonObject.isEmpty()) || (JsonObject.contains("error"))) {
-            emit uploadResult(false,
-                              "OneDrive",
-                              JsonObject.value("error").toObject().value("message").toString());
+            emit uploadResult(false, "OneDrive", JsonObject.value("error").toObject().value("message").toString());
         } else {
             emit uploadResult(true, "OneDrive");
         }
@@ -672,9 +634,7 @@ void CCloudStorage::replyFinished(QNetworkReply *pReply)
         QJsonDocument JsonDocument = QJsonDocument::fromJson(BABody);
         QJsonObject JsonObject = JsonDocument.object();
         if ((BABody.isEmpty()) || (JsonObject.contains("error"))) {
-            emit downloadResult(false,
-                                "OneDrive",
-                                JsonObject.value("error").toObject().value("message").toString());
+            emit downloadResult(false, "OneDrive", JsonObject.value("error").toObject().value("message").toString());
         } else {
             QFile File(m_sLocal);
             File.open(QIODevice::WriteOnly);
@@ -789,9 +749,7 @@ void CCloudStorage::replyFinished(QNetworkReply *pReply)
         QJsonDocument JsonDocument = QJsonDocument::fromJson(BABody);
         QJsonObject JsonObject = JsonDocument.object();
         if ((JsonObject.isEmpty()) || (JsonObject.contains("error"))) {
-            emit uploadResult(false,
-                              "Google Drive",
-                              JsonObject.value("error").toObject().value("message").toString());
+            emit uploadResult(false, "Google Drive", JsonObject.value("error").toObject().value("message").toString());
         } else {
             //Delete previous file
             gdDelete(m_sGdFileId);
@@ -809,9 +767,7 @@ void CCloudStorage::replyFinished(QNetworkReply *pReply)
         QJsonDocument JsonDocument = QJsonDocument::fromJson(BABody);
         QJsonObject JsonObject = JsonDocument.object();
         if ((BABody.isEmpty()) || (JsonObject.contains("error"))) {
-            emit downloadResult(false,
-                                "Google Drive",
-                                JsonObject.value("error").toObject().value("message").toString());
+            emit downloadResult(false, "Google Drive", JsonObject.value("error").toObject().value("message").toString());
         } else {
             QFile File(m_sLocal);
             File.open(QIODevice::WriteOnly);

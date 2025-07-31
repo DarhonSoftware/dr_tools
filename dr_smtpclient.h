@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef DR_CSMTPCLIENT_H
 #define DR_CSMTPCLIENT_H
 
@@ -84,12 +84,8 @@ public:
     bool disconnectFromHost();
     bool login();
     bool login(const QString &sUser, const QString &sPassword, AuthMethod iMethod);
-    bool sendMail(const QString &sFrom,
-                  const QString &sNameFrom,
-                  const QString &sTo,
-                  const QString &sNameTo,
-                  const QString &sSubject,
-                  const QString &sBody);
+    bool sendMail(
+        const QString &sFrom, const QString &sNameFrom, const QString &sTo, const QString &sNameTo, const QString &sSubject, const QString &sBody);
 
 signals:
 private slots:

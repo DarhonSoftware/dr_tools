@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #include "dr_sqltablemodel.h"
 #include <QtGui>
 #include <QtSql>

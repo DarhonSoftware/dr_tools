@@ -1,4 +1,4 @@
-//Release 2
+//Release 3
 #include "dr_version.h"
 #include <QtCore>
 #include <QtNetwork>
@@ -28,8 +28,7 @@ bool g_silverVersion(const QString &sNewActCode, const QString &sType)
 
     //Validate whether Gold version is activated
     if ((sAppCode.toUpper() == g_appCode(sType, false))
-        && ((sType.at(2) == '0')
-            || ((sType.at(2) == '1') && (QDate::currentDate() <= DateSubscription.addMonths(1)))
+        && ((sType.at(2) == '0') || ((sType.at(2) == '1') && (QDate::currentDate() <= DateSubscription.addMonths(1)))
             || ((sType.at(2) == '2') && (QDate::currentDate() <= DateSubscription.addYears(1)))))
         return false;
 
@@ -111,20 +110,17 @@ QString g_actCodeToAppCode(const QString &sActCode)
 
     //Process the first 16 bits - shift right circular 1
     quint16 u16Code1 = static_cast<quint16>(sActCode.left(4).toLong(&bOk, 16));
-    u16Code1 = static_cast<quint16>(u16Code1 >> 1)
-               | static_cast<quint16>((u16Code1 & 0x0001) << 15);
+    u16Code1 = static_cast<quint16>(u16Code1 >> 1) | static_cast<quint16>((u16Code1 & 0x0001) << 15);
 
     //Process the second 16 bits - shift right circular 3
     int i = sActCode.indexOf(QChar('-'));
     quint16 u16Code2 = static_cast<quint16>(sActCode.mid(i + 1, 4).toLong(&bOk, 16));
-    u16Code2 = static_cast<quint16>(u16Code2 >> 3)
-               | static_cast<quint16>((u16Code2 & 0x0007) << 13);
+    u16Code2 = static_cast<quint16>(u16Code2 >> 3) | static_cast<quint16>((u16Code2 & 0x0007) << 13);
 
     //Process the third 16 bits - shift right circular 5
     i = sActCode.indexOf(QChar('-'), i + 1);
     quint16 u16Code3 = static_cast<quint16>(sActCode.mid(i + 1, 4).toLong(&bOk, 16));
-    u16Code3 = static_cast<quint16>(u16Code3 >> 5)
-               | static_cast<quint16>((u16Code3 & 0x001F) << 11);
+    u16Code3 = static_cast<quint16>(u16Code3 >> 5) | static_cast<quint16>((u16Code3 & 0x001F) << 11);
 
     //Process the fourth 16 bits - shift right circular 7
     i = sActCode.indexOf(QChar('-'), i + 1);
@@ -156,20 +152,17 @@ QString g_appCodeToActCode(const QString &sAppCode)
 
     //Process the first 16 bits - shift left circular 1
     quint16 u16Code1 = static_cast<quint16>(sAppCode.left(4).toLong(&bOk, 16));
-    u16Code1 = static_cast<quint16>(u16Code1 << 1)
-               | static_cast<quint16>((u16Code1 & 0x8000) >> 15);
+    u16Code1 = static_cast<quint16>(u16Code1 << 1) | static_cast<quint16>((u16Code1 & 0x8000) >> 15);
 
     //Process the second 16 bits - shift left circular 3
     int i = sAppCode.indexOf(QChar('-'));
     quint16 u16Code2 = static_cast<quint16>(sAppCode.mid(i + 1, 4).toLong(&bOk, 16));
-    u16Code2 = static_cast<quint16>(u16Code2 << 3)
-               | static_cast<quint16>((u16Code2 & 0xE000) >> 13);
+    u16Code2 = static_cast<quint16>(u16Code2 << 3) | static_cast<quint16>((u16Code2 & 0xE000) >> 13);
 
     //Process the third 16 bits - shift left circular 5
     i = sAppCode.indexOf(QChar('-'), i + 1);
     quint16 u16Code3 = static_cast<quint16>(sAppCode.mid(i + 1, 4).toLong(&bOk, 16));
-    u16Code3 = static_cast<quint16>(u16Code3 << 5)
-               | static_cast<quint16>((u16Code3 & 0xF800) >> 11);
+    u16Code3 = static_cast<quint16>(u16Code3 << 5) | static_cast<quint16>((u16Code3 & 0xF800) >> 11);
 
     //Process the fourth 16 bits - shift left circular 7
     i = sAppCode.indexOf(QChar('-'), i + 1);

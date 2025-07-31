@@ -1,4 +1,4 @@
-//Release 1
+//Release 2
 #ifndef DR_CRYPT_H
 #define DR_CRYPT_H
 
@@ -12,11 +12,11 @@ public:
     enum CompressionMode { CompressionYes, CompressionNo };
     enum EncryptionMode { SIM128, SIM256, AES128_CFB, AES256_CFB, AES128_OFB, AES256_OFB };
     enum Error {
-        ErrorNoError,   // No error occurred.
-        ErrorNoPassSet, // No pass was set. You can not encrypt or decrypt without a valid password.
-        ErrorNoMarkSet, // No mark was set. You can not encrypt or decrypt without a valid mark.
-        ErrorUnknownVersion, // The version of this data is unknown, or the data is otherwise not valid.
-        ErrorIntegrityFailed, // The integrity check of the data failed. Perhaps the wrong key was used.
+        ErrorNoError,          // No error occurred.
+        ErrorNoPassSet,        // No pass was set. You can not encrypt or decrypt without a valid password.
+        ErrorNoMarkSet,        // No mark was set. You can not encrypt or decrypt without a valid mark.
+        ErrorUnknownVersion,   // The version of this data is unknown, or the data is otherwise not valid.
+        ErrorIntegrityFailed,  // The integrity check of the data failed. Perhaps the wrong key was used.
         ErrorArrayTooShort,    // Either cypher or plaintext are smaller then minimum accepted
         ErrorAlreadyProcessed, // Already encrypted or decrypted
         ErrorFileNotFound,     // None existing file to be processed
