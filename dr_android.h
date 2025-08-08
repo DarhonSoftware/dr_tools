@@ -1,7 +1,7 @@
-//Release 3
+//Release 4
 #ifndef DR_ANDROID_H
 #define DR_ANDROID_H
-#include <QtCore>
+#include <QtCore/qglobal.h>
 #ifdef Q_OS_ANDROID
 
 namespace AndroidDR {

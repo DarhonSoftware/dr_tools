@@ -1,7 +1,7 @@
-//Release 2
+//Release 3
 #include "dr_sql.h"
-#include <QtCore>
-#include <QtSql>
+#include <QSqlQuery>
+#include <QSqlTableModel>
 
 qulonglong g_rowCount(const QSqlTableModel &Model)
 {

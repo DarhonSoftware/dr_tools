@@ -1,9 +1,12 @@
-//Release 2
+//Release 3
 #include "dr_cloudstorage.h"
 #include <QDesktopServices>
+#include <QDir>
+#include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QRandomGenerator>
-#include <QtCore>
-#include <QtNetwork>
+#include <QSettings>
 #include "dr_crypt.h"
 
 #define CRYPT_MARK "f10a490bc629b16d"

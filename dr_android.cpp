@@ -1,5 +1,5 @@
-//Release 3
-#include <QtCore>
+//Release 4
+#include <QtCore/qglobal.h>
 #ifdef Q_OS_ANDROID
 #include <QtCore/private/qandroidextras_p.h> //This namespace is under development and is subject to change
 #include "dr_android.h"

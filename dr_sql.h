@@ -1,12 +1,10 @@
-//Release 2
+//Release 3
 #ifndef DR_SQL_H
 #define DR_SQL_H
 
-#include <QtCore>
-
+#include <QString>
 class QSqlTableModel;
 class QVariant;
-class QString;
 
 /***** Global constats *****/
 

@@ -1,7 +1,6 @@
-//Release 2
+//Release 3
 #include "dr_sqltablemodel.h"
-#include <QtGui>
-#include <QtSql>
+#include <QSqlRecord>
 
 CSqlTableModel::CSqlTableModel(QObject *pObject)
     : QSqlTableModel(pObject)
