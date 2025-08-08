@@ -1,7 +1,6 @@
-//Release 2
+//Release 3
 #include "dr_sqlrelationaltablemodel.h"
-#include <QtGui>
-#include <QtSql>
+#include <QSqlRecord>
 
 CSqlRelationalTableModel::CSqlRelationalTableModel(QObject *pObject)
     : QSqlRelationalTableModel(pObject)
